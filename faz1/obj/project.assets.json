@@ -105,11 +105,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz 1\\codestar.csproj",
+      "projectUniqueName": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz1\\codestar.csproj",
       "projectName": "codestar",
-      "projectPath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz 1\\codestar.csproj",
+      "projectPath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz1\\codestar.csproj",
       "packagesPath": "C:\\Users\\soroo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz 1\\obj\\",
+      "outputPath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

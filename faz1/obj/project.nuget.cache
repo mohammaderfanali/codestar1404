@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "C+Iz9Eb+EoA=",
+  "dgSpecHash": "k3YytVV+/0Q=",
   "success": true,
-  "projectFilePath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz 1\\codestar.csproj",
+  "projectFilePath": "C:\\Users\\soroo\\Desktop\\star\\codestar1404\\faz1\\codestar.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\soroo\\.nuget\\packages\\system.text.json\\9.0.7\\system.text.json.9.0.7.nupkg.sha512"
   ],
