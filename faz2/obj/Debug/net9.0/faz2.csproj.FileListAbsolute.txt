@@ -1,0 +1,15 @@
+C:\Users\soroo\Desktop\star\codestar1404\faz2\bin\Debug\net9.0\faz2.exe
+C:\Users\soroo\Desktop\star\codestar1404\faz2\bin\Debug\net9.0\faz2.deps.json
+C:\Users\soroo\Desktop\star\codestar1404\faz2\bin\Debug\net9.0\faz2.runtimeconfig.json
+C:\Users\soroo\Desktop\star\codestar1404\faz2\bin\Debug\net9.0\faz2.dll
+C:\Users\soroo\Desktop\star\codestar1404\faz2\bin\Debug\net9.0\faz2.pdb
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.AssemblyInfoInputs.cache
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.AssemblyInfo.cs
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.csproj.CoreCompileInputs.cache
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.sourcelink.json
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.dll
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\refint\faz2.dll
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.pdb
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\faz2.genruntimeconfig.cache
+C:\Users\soroo\Desktop\star\codestar1404\faz2\obj\Debug\net9.0\ref\faz2.dll
