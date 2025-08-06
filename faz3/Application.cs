@@ -9,7 +9,7 @@ public class Application: IApplication
 {
     public void Run()
     {
-        DocsReader myFile = new ();
+        FileReader myFile = new ();
         Dictionary<string, string> allFile = myFile.ReadFiles(faz3.paths.docs);
         Tokenizer myTokener = new Tokenizer();
         AddToInvertedIndex myInvertedIndex = new ();
