@@ -2,12 +2,12 @@
 
 public class AndQueryStrategy:IQueryStrategy
 {
-    private readonly Queryhandler _queryHandler;
-    private readonly PhraseSearcher _fullStringSearcher;
+    private readonly IQueryHandler _queryHandler;
+    private readonly IPhraseSearcher _fullStringSearcher;
     private readonly Dictionary<string, Dictionary<string, List<int>>> _invertedIndex;
     private readonly List<string> _allDocs;
 
-    public AndQueryStrategy(Queryhandler queryhandler, PhraseSearcher fullStringSearcher,
+    public AndQueryStrategy(IQueryHandler queryhandler, IPhraseSearcher fullStringSearcher,
         Dictionary<string, Dictionary<string, List<int>>> invertedIndex)
     {
         this._queryHandler = queryhandler;

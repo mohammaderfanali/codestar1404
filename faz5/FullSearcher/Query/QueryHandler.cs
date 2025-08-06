@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 namespace SearchEngine;
-public class Queryhandler
+public class QueryHandler : IQueryHandler
 {
     
     public List<(string value, char prefix)> SplitCommandWithRegex(string input)

@@ -38,7 +38,7 @@ namespace SearchEngine {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SearchEngine.paths", typeof(paths).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("FullSearcher.paths", typeof(paths).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

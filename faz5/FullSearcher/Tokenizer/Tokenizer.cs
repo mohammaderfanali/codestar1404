@@ -6,22 +6,22 @@ namespace SearchEngine;
 
 public class Tokenizer:ITokenizer
 {
-    private readonly Normalizer normalizer;
+    private readonly INormalizer normalizer;
+    private readonly char[] separatorArray;
 
-    public Tokenizer(Normalizer normalizer)
+    public Tokenizer(INormalizer normalizer)
     {
         this.normalizer = normalizer;
+        string jsonChars = SearchEngine.Separators.SpecialCharacters;
+        var separators = JsonSerializer.Deserialize<List<char>>(jsonChars);
+        separatorArray = separators.ToArray();
     }
     
     
     public List<string> Tokenize(string content)
     {
-        string jsonChars = SearchEngine.Separators.SpecialCharacters;
-        var separators = JsonSerializer.Deserialize<List<char>>(jsonChars);
-        char[] separatorArray = separators.ToArray();
         var normalized = normalizer.Normalize(content);
         var words = normalized.Split(separatorArray, StringSplitOptions.RemoveEmptyEntries);
-            
         return words.ToList();
     }
     }

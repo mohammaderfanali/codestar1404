@@ -1,6 +1,6 @@
 ﻿namespace SearchEngine;
 
-public class PhraseSearcher
+public class PhraseSearcher : IPhraseSearcher
 {
    
     public List<string> Search(Dictionary<string, Dictionary<string, List<int>>> invertedIndex

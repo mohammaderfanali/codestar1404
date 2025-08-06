@@ -1,6 +1,7 @@
-﻿namespace faz3;
+﻿namespace SearchEngine;
 
-public class IPhraseSearcher
+public interface IPhraseSearcher
 {
-    
+    List<string> Search(Dictionary<string, Dictionary<string, List<int>>> invertedIndex
+        , List<string> phrase);
 }

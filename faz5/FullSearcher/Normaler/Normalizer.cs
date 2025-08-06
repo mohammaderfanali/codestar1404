@@ -8,7 +8,7 @@ public class Normalizer : INormalizer
             if (string.IsNullOrEmpty(text))
                 return text;
 
-            return Regex.Replace(text.ToLower(), @"[^\w\s]", "");
+            return Regex.Replace(text.ToLower(), @"[^a-zA-Z0-9\s]", "");
         }
     }
 }
