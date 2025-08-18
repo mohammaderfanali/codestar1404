@@ -1,0 +1,6 @@
+@faz11_HostAddress = http://localhost:5053
+
+GET {{faz11_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
