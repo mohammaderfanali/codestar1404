@@ -10,12 +10,15 @@ public class CsvPlugin:IPlugin
 {
 
 
-    public Task<KeyValuePair<string,string>> Makequery(string jsoncommanddata, string[] pastquery)
+    public Task<KeyValuePair<string,string>> Makequery(JsonElement commandelement,
+        List<KeyValuePair<string, string>> pastquery)
     {
-        if (pastquery != null )
+        if (pastquery.Count!=0)
             throw new ArgumentException("csvreader has no pastquery");
 
-        Console.WriteLine("Running csvreader plugin...");
+        string jsoncommanddata = commandelement.GetRawText();
+        
+        Console.WriteLine(path.running_csvreader);
         
         string connectionstring = path.uploadconnection;
 
@@ -30,7 +33,7 @@ public class CsvPlugin:IPlugin
              
              var dataBaseUploader = new DataBaseUploader();
              
-             dataBaseUploader.UploadDataAsync(connectionstring,
+             _ = dataBaseUploader.UploadDataAsync(connectionstring,
                  csvreader.GetFileName(filepath),content);
 
              var dbchecker = new DatabaseHealthChecker.DatabaseHealthChecker();
@@ -39,14 +42,20 @@ public class CsvPlugin:IPlugin
 
             string query="SELECT * FROM [" + tablename + "]";
             
-            Console.WriteLine("csvreader plugin completed successfully");
+            Console.WriteLine(path.csvreader_complete_succesfuly);
 
             return Task.FromResult(new KeyValuePair<string, string>(query, connectionstring));
                     
         }
         
-        Console.WriteLine("csvreader plugin completed unsuccessfully");
+        Console.WriteLine(path.csvreader_complete_unsuccesfuly);
         return Task.FromResult(new KeyValuePair<string, string>());
         
     }
+
+    public string Getpluginname()
+    {
+        return "csvreader";
+    }
+    
 }

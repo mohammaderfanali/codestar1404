@@ -1,8 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace project.Plugins.Abstraction;
 
 public interface IPlugin
 {
-    Task<KeyValuePair<string,string>> Makequery(string jsoncommanddata,string[] pastquery=null);
+    public Task<KeyValuePair<string, string>> Makequery(
+        JsonElement commandelement,
+        List<KeyValuePair<string, string>> pastqueroes = null);
+
+    public string Getpluginname();
 }

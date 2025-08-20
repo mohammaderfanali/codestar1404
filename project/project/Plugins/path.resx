@@ -36,4 +36,19 @@
     <data name="complete unsuccesfuly" xml:space="preserve">
         <value>databaseReader plugin completed unsuccessfully.</value>
     </data>
+    <data name="running csvreader" xml:space="preserve">
+        <value>Running csvreader plugin...</value>
+    </data>
+    <data name="csvreader complete succesfuly" xml:space="preserve">
+        <value>csvreader plugin completed successfully</value>
+    </data>
+    <data name="csvreader complete unsuccesfuly" xml:space="preserve">
+        <value>csvreader plugin completed unsuccessfully</value>
+    </data>
+    <data name="json not found" xml:space="preserve">
+        <value>JSON file not found.</value>
+    </data>
+    <data name="json found" xml:space="preserve">
+        <value>JSON file found.</value>
+    </data>
 </root>

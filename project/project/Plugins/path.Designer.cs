@@ -78,6 +78,24 @@ namespace project.Plugins {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to csvreader plugin completed successfully.
+        /// </summary>
+        internal static string csvreader_complete_succesfuly {
+            get {
+                return ResourceManager.GetString("csvreader complete succesfuly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to csvreader plugin completed unsuccessfully.
+        /// </summary>
+        internal static string csvreader_complete_unsuccesfuly {
+            get {
+                return ResourceManager.GetString("csvreader complete unsuccesfuly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to empty command.
         /// </summary>
         internal static string DatabasePlugin_Makequery_empty_command {
@@ -92,6 +110,33 @@ namespace project.Plugins {
         internal static string empty_table {
             get {
                 return ResourceManager.GetString("empty table", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to JSON file found..
+        /// </summary>
+        internal static string json_found {
+            get {
+                return ResourceManager.GetString("json found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to JSON file not found..
+        /// </summary>
+        internal static string json_not_found {
+            get {
+                return ResourceManager.GetString("json not found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running csvreader plugin....
+        /// </summary>
+        internal static string running_csvreader {
+            get {
+                return ResourceManager.GetString("running csvreader", resourceCulture);
             }
         }
         
@@ -114,4 +159,3 @@ namespace project.Plugins {
         }
     }
 }
-

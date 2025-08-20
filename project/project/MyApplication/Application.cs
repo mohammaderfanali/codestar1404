@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using project;
+using project.Plugins;
+using project.Plugins.PluginClasses;
 using project.Topological_sort;
 using project.Topological_sort.Models;
 using project.Topological_sort.GetParent;
@@ -13,36 +15,25 @@ public class Application
                           "codestar1404\\project\\project\\Plugins\\Form.json"; // Replace with your actual path
         if (!File.Exists(jsonPath))
         {
-            Console.WriteLine("JSON file not found.");
+            Console.WriteLine(path.json_not_found);
             return;
         }
         else
         {
-            Console.WriteLine("JSON file found.");
+            Console.WriteLine(path.json_found);
         }
 
         var json = File.ReadAllText(jsonPath);
         var dag = JsonSerializer.Deserialize<Graph>(json);
+        
+        var pluginmanager = new PluginManager.PluginManager();
 
-        var sorter = new TopologicalSorter();
-        var parrNodes = new NodeParentProvider();
+        var dbplugin = new DatabasePlugin();
+        var csvplugin = new CsvPlugin();
         
+        pluginmanager.AddPlugin(dbplugin);
+        pluginmanager.AddPlugin(csvplugin);
 
-            var sortedNodes = sorter.Sort(dag);
-            var parrents = parrNodes.GetParents(dag);
-            Console.WriteLine("Topologically sorted nodes:");
-            foreach (var node in sortedNodes)
-            {
-                Console.WriteLine($"Node {node.Id} - Type: {node.Type}");
-            }
-
-        
-        List<KeyValuePair<string,string>> results = new List<KeyValuePair<string,string>>();
-        // foreach (var node in sortedNodes)
-        // {
-        //     
-        // }
-        
-        
+        if (dag != null) pluginmanager.Runscenario(dag);
     }
 }

@@ -8,14 +8,13 @@ namespace project.Plugins.PluginClasses;
 
 public class DatabasePlugin:IPlugin
 {
-
-    public string Name="databasereader";
     
-    public async Task<KeyValuePair<string,string>> Makequery(string jsoncommanddata, string[] pastquery)
+    public async Task<KeyValuePair<string,string>> Makequery(JsonElement commandelement,
+        List<KeyValuePair<string, string>> pastquery = null)
     {
-        if (pastquery != null )
+        if (pastquery.Count!=0)
             throw new ArgumentException("DatabaseReader has no pastquery");
-
+        string jsoncommanddata = commandelement.GetRawText();
         Console.WriteLine(path.running_database_plugin);
 
         string connectionstring = path.uploadconnection;
@@ -44,5 +43,10 @@ public class DatabasePlugin:IPlugin
         }
         Console.WriteLine(path.complete_unsuccesfuly);
         return new KeyValuePair<string, string>();
+    }
+
+    public string Getpluginname()
+    {
+        return "databasereader";
     }
 }
