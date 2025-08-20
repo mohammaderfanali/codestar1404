@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Xunit;
 using faz3;
+using FluentAssertions;
 
 public class AddOptionalWordsToIndexTests
 {
@@ -66,7 +67,7 @@ public class AddOptionalWordsToIndexTests
             new List<string>(docs));
 
         // Assert
-        Assert.Equal(expected, result);
+        expected.Should().BeSameAs(result);
     }
 
     [Fact]

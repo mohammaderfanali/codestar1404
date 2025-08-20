@@ -4,11 +4,11 @@ namespace faz3;
 
 public class AddToInvertedIndex : IAddToInvertedIndex
 {
-    public  Dictionary<string, List<string>> InvertedIndex { get; }
+    public  Dictionary<string, Dictionary<string, List<int>>> InvertedIndex { get; }
 
     public AddToInvertedIndex()
     {
-        InvertedIndex = new Dictionary<string, List<string>>();
+        InvertedIndex = new ();
         
     }
     public void MakeInvertedindex(Dictionary<string, string> files,ITokenizer tokenizer)
@@ -16,13 +16,20 @@ public class AddToInvertedIndex : IAddToInvertedIndex
         foreach (var file in files)
         {
             var words = tokenizer.Tokenner(file.Value);
-            foreach (var word in words)
+            for (var i = 0; i < words.Count; i++)
             {
-                if (!InvertedIndex.ContainsKey(word))
-                    InvertedIndex[word] = new List<string>();
+                var word = words[i];
+                if (!InvertedIndex.ContainsKey(word)){
+                    InvertedIndex[word] = new();
+                }
+                
+                if (!InvertedIndex[word].ContainsKey(file.Key))
+                {
+                    InvertedIndex[word][file.Key] = new List<int>();
+                } 
+                InvertedIndex[word][file.Key].Add(i + 1); // Assuming positions start at 1
 
-                if (!InvertedIndex[word].Contains(file.Key))
-                    InvertedIndex[word].Add(file.Key);
+                
             }
         }
     }

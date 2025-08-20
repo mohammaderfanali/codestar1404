@@ -3,11 +3,11 @@
 public class Searcher : ISearcher
 {
     private List<string> _docs;
-    private Dictionary<string, List<string>> _invertedIndex;
+    private Dictionary<string, Dictionary<string, List<int>>> _invertedIndex;
     private ITokenizer _myTokener;
-    public Searcher(Dictionary<string, List<string>> inverted,ITokenizer tokenizer)
+    public Searcher(Dictionary<string, Dictionary<string, List<int>>> inverted,ITokenizer tokenizer)
     {
-        _docs = inverted.Values.SelectMany(docs => docs).Distinct().OrderBy(c=>c).ToList();
+        _docs = inverted.Values.SelectMany(docs => docs.Keys).Distinct().OrderBy(c=>c).ToList();
         _invertedIndex = inverted;
         _myTokener = tokenizer;
     }

@@ -1,0 +1,20 @@
+﻿{
+  "nodes": [
+    { "id": 1, "type": "load_data_A", "data": {} },
+    { "id": 2, "type": "load_data_B", "data": {} },
+    { "id": 3, "type": "clean_data_A", "data": {} },
+    { "id": 4, "type": "enrich_data_A", "data": {} },
+    { "id": 5, "type": "process_data_B", "data": {} },
+    { "id": 6, "type": "join_streams", "data": {} },
+    { "id": 7, "type": "generate_report", "data": {} }
+  ],
+  "edges": [
+    { "from": 1, "to": 3 },
+    { "from": 1, "to": 4 },
+    { "from": 2, "to": 5 },
+    { "from": 3, "to": 6 },
+    { "from": 4, "to": 6 },
+    { "from": 5, "to": 7 },
+    { "from": 6, "to": 7 }
+  ]
+}

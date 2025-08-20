@@ -1,4 +1,6 @@
-﻿namespace faz3;
+﻿using faz3.normaler;
+
+namespace faz3;
 using file;
 using System.Text.Json;
 using System.IO;
@@ -11,7 +13,7 @@ public class Application: IApplication
     {
         FileReader myFile = new ();
         Dictionary<string, string> allFile = myFile.ReadFiles(faz3.paths.docs);
-        Tokenizer myTokener = new Tokenizer();
+        Tokenizer myTokener = new Tokenizer(new Normalizer());
         AddToInvertedIndex myInvertedIndex = new ();
         myInvertedIndex.MakeInvertedindex(allFile,myTokener);
 

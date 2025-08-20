@@ -2,13 +2,13 @@
 
 public class RemoveFromIndex : IWorkOnInvertedIndex
 {
-    public List<string> Operation(Dictionary<string, List<string>> invertedIndex, 
+    public List<string> Operation(Dictionary<string, Dictionary<string, List<int>>> invertedIndex, 
         List<string> excluded, List<string> doc)
     {
         foreach (var word in excluded)
         {
             if (invertedIndex.ContainsKey(word))
-                doc = doc.Except(invertedIndex[word]).ToList();
+                doc = doc.Except(invertedIndex[word].Keys.ToList()).ToList();
         }
         return doc;
 
