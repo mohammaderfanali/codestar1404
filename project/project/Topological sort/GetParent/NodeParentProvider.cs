@@ -2,6 +2,7 @@
 
 namespace project.Topological_sort.GetParent;
 
+
 public class NodeParentProvider
 {
     public Dictionary<int, List<int>> GetParents(Graph graph)

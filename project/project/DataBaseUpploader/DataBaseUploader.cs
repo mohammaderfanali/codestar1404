@@ -12,6 +12,7 @@ public class DataBaseUploader : IDataBaseUploader
         List<string[]> data, 
         bool skipHeaderRow = true)
     {
+        
         if (data.Count == 0)
         {
             Console.WriteLine("No data to upload.");

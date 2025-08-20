@@ -4,6 +4,7 @@ namespace project.Topological_sort;
 
 public class TopologicalSorter
 {
+    
     public List<Node> Sort(Graph dag)
     {
         var inDegree = new Dictionary<int, int>();

@@ -7,6 +7,7 @@ public class DatabaseHealthChecker : IDatabaseHealthChecker
 {
     public async Task<bool> IsConnectionValidAsync(string connectionString)
     {
+        
         try
         {
             await using var connection = new NpgsqlConnection(connectionString);
