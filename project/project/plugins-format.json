@@ -1,0 +1,19 @@
+[{
+  "plugin": "CsvReaderplugin",
+  "data":{
+        "file": "users.csv"
+        }
+},
+{
+  "plugin": "Databaseplugin",
+  "data": {
+    "connection": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "project",
+      "username": "postgres",
+      "password": "yourpassword"
+    }
+  }
+}]
+
