@@ -1,6 +1,4 @@
-﻿namespace project.Models.pluginoutput;
-
-public class PluginOutput
+﻿namespace project.Models.pluginoutput
 {
-    
+    public record PluginOutput(string Query, string ConnectionString);
 }

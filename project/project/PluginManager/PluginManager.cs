@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using project.Models.pluginoutput;
 using project.PluginManager.Abstraction;
 using project.Plugins.Abstraction;
 using project.Topological_sort;
@@ -35,7 +36,7 @@ namespace project.PluginManager
                 var parrents = parrNodes.GetParents(dag);
                 _logger.LogInformation("{NodeCount} nodes sorted for processing.", sortedNodes.Count);
 
-                var results = new Dictionary<int, KeyValuePair<string, string>>();
+                var results = new Dictionary<int, PluginOutput>();
 
                 foreach (var node in sortedNodes)
                 {
@@ -43,12 +44,12 @@ namespace project.PluginManager
                     {
                         try
                         {
-                            var parentInput = new List<KeyValuePair<string, string>>();
+                            var parentOutputs = new List<PluginOutput>();
                             foreach (var parentId in parrents[node.Id])
                             {
                                 if (results.TryGetValue(parentId, out var parentResult))
                                 {
-                                    parentInput.Add(parentResult);
+                                    parentOutputs.Add(parentResult);
                                 }
                                 else
                                 {
@@ -59,10 +60,10 @@ namespace project.PluginManager
                             _logger.LogInformation("Executing plugin {PluginName} for node {NodeId}...",
                                 foundPlugin.PluginName, node.Id);
                             
-                            var result = await foundPlugin.Makequery(node.Data, parentInput);
+                            var result = await foundPlugin.Makequery(node.Data, parentOutputs);
                             results.Add(node.Id, result);
                             
-                            _logger.LogInformation("Node {NodeId}: Result Key='{ResultKey}', Result Value='{ResultValue}'", node.Id, result.Key, result.Value);
+                            _logger.LogInformation("Node {NodeId}: Result Query='{Query}'", node.Id, result.Query);
 
                             _logger.LogInformation("Plugin {PluginName} for node {NodeId} executed successfully.",
                                 foundPlugin.PluginName, node.Id);
@@ -78,7 +79,6 @@ namespace project.PluginManager
                         _logger.LogWarning("No plugin found for node type '{NodeType}' with ID {NodeId}.", node.Type, node.Id);
                     }
                 }
-                
             }
             catch (Exception ex)
             {
@@ -89,3 +89,4 @@ namespace project.PluginManager
         }
     }
 }
+

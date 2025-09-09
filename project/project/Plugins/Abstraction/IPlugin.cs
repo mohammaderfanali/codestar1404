@@ -1,13 +1,13 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using project.Models.pluginoutput;
 
-namespace project.Plugins.Abstraction;
-
-public interface IPlugin
+namespace project.Plugins.Abstraction
 {
-    string PluginName { get; }
-    public Task<KeyValuePair<string, string>> Makequery(
-        JsonElement commandelement,
-        List<KeyValuePair<string, string>> pastqueroes = null);
-
+    public interface IPlugin
+    {
+        string PluginName { get; }
+        Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null);
+    }
 }

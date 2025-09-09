@@ -1,8 +1,13 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using project.DatabaseHealthChecker.Abstraction;
+using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
 
@@ -23,15 +28,14 @@ namespace project.Plugins.PluginClasses
             _dbChecker = dbChecker;
         }
 
-        public async Task<KeyValuePair<string, string>> Makequery(JsonElement commandelement,
-            List<KeyValuePair<string, string>> pastquery = null)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null)
         {
             _logger.LogInformation("Executing JoinPlugin...");
 
-            if (pastquery == null || pastquery.Count < 2)
+            if (pastOutputs == null || pastOutputs.Count < 2)
             {
-                _logger.LogError("JoinPlugin requires at least two previous queries to operate.");
-                throw new ArgumentException("JoinPlugin requires at least two previous queries.");
+                _logger.LogError("JoinPlugin requires at least two previous plugin outputs to operate.");
+                throw new ArgumentException("JoinPlugin requires at least two previous plugin outputs.");
             }
 
             string jsoncommanddata = commandelement.GetRawText();
@@ -44,13 +48,13 @@ namespace project.Plugins.PluginClasses
                 throw new ArgumentException("Invalid command data: 'type', 'onfirst', and 'onsecond' must be provided.");
             }
 
-            var firstQueryData = pastquery[0];
-            var secondQueryData = pastquery[1];
+            var firstQueryData = pastOutputs[0];
+            var secondQueryData = pastOutputs[1];
             
-            var firstQuery = $"({firstQueryData.Key})";
-            var secondQuery = $"({secondQueryData.Key})";
-            var firstConnection = firstQueryData.Value;
-            var secondConnection = secondQueryData.Value;
+            var firstQuery = $"({firstQueryData.Query})";
+            var secondQuery = $"({secondQueryData.Query})";
+            var firstConnection = firstQueryData.ConnectionString;
+            var secondConnection = secondQueryData.ConnectionString;
 
             if (string.IsNullOrEmpty(firstQuery) || string.IsNullOrEmpty(secondQuery))
             {
@@ -60,13 +64,13 @@ namespace project.Plugins.PluginClasses
 
             if (firstConnection == secondConnection)
             {
-                string onClause = $"T1.{command.OnFirst} = T2.{command.OnSecond}";
+                string onClause = $"T1.\"{command.OnFirst}\" = T2.\"{command.OnSecond}\"";
 
                 string finalQuery = $"SELECT * FROM {firstQuery} AS T1 {command.Type.ToUpper()} JOIN {secondQuery} AS T2 ON {onClause}";
 
                 _logger.LogInformation("Successfully generated JOIN query for connection '{connection}'.", firstConnection);
                 
-                return new KeyValuePair<string, string>(finalQuery, firstConnection);
+                return new PluginOutput(finalQuery, firstConnection);
             }
             else
             {

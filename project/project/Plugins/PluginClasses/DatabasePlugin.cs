@@ -1,74 +1,72 @@
 ﻿using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using project.DatabaseHealthChecker.Abstraction;
+using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
-
-namespace project.Plugins.PluginClasses;
-
-public class DatabasePlugin : IPlugin
+namespace project.Plugins.PluginClasses
 {
-    public string PluginName => "DatabasePlugin";
-
-    private readonly ILogger<DatabasePlugin> _logger;
-    private readonly IDatabaseHealthChecker _dbChecker;
-
-    public DatabasePlugin(
-        ILogger<DatabasePlugin> logger,
-        IDatabaseHealthChecker dbChecker,
-        IConfiguration configuration)
+    public class DatabasePlugin : IPlugin
     {
-        _logger = logger;
-        _dbChecker = dbChecker;
-    }
+        public string PluginName => "DatabasePlugin";
 
-    public async Task<KeyValuePair<string, string>> Makequery(JsonElement commandelement,
-        List<KeyValuePair<string, string>> pastquery = null)
-    {
-        if (pastquery != null && pastquery.Count != 0)
+        private readonly ILogger<DatabasePlugin> _logger;
+        private readonly IDatabaseHealthChecker _dbChecker;
+        public DatabasePlugin(
+            ILogger<DatabasePlugin> logger,
+            IDatabaseHealthChecker dbChecker)
         {
-            _logger.LogWarning("DatabasePlugin does not support past query inputs.");
-            throw new ArgumentException("DatabaseReader requires an empty query history to run.");
+            _logger = logger;
+            _dbChecker = dbChecker;
         }
 
-        string jsoncommanddata = commandelement.GetRawText();
-        
-        _logger.LogInformation("Running DatabasePlugin...");
-        var config = JsonSerializer.Deserialize<DatabaseRederModel>(jsoncommanddata);
-        var connectionString= $"Host={config.Host};Port={config.Port};Username={config.Username};" +
-               $"Password={config.Password};Database={config.Database};";
-        
-        if (config == null)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null)
         {
-            _logger.LogError("Invalid command received for DatabasePlugin.");
-            return new KeyValuePair<string, string>();
-        }
-
-        string tableName = config.Tablename;
-        string query = $"SELECT * FROM {tableName}";
-
-        try
-        {
-            if (await _dbChecker.IsConnectionValidAsync(connectionString))
+            if (pastOutputs != null && pastOutputs.Any())
             {
-                if (!await _dbChecker.TableHasDataAsync(connectionString, tableName))
+                _logger.LogWarning("DatabasePlugin does not support past outputs from other plugins.");
+                throw new ArgumentException("DatabasePlugin requires an empty output history to run.");
+            }
+
+            string jsoncommanddata = commandelement.GetRawText();
+            
+            _logger.LogInformation("Running DatabasePlugin...");
+            var config = JsonSerializer.Deserialize<DatabaseRederModel>(jsoncommanddata);
+            
+            if (config == null)
+            {
+                _logger.LogError("Invalid command received for DatabasePlugin. Could not deserialize JSON.");
+                throw new InvalidOperationException("Invalid command for DatabasePlugin.");
+            }
+            
+            var connectionString = $"Host={config.Host};Port={config.Port};Username={config.Username};" +
+                                   $"Password={config.Password};Database={config.Database};";
+
+            string tableName = config.Tablename;
+            string query = $"SELECT * FROM \"{tableName}\"";
+
+            try
+            {
+                if (await _dbChecker.IsConnectionValidAsync(connectionString))
                 {
-                    _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
+                    if (!await _dbChecker.TableHasDataAsync(connectionString, tableName))
+                    {
+                        _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
+                    }
+                    _logger.LogInformation("DatabasePlugin executed successfully.");
+                    return new PluginOutput(query, connectionString);
                 }
-                _logger.LogInformation("DatabasePlugin executed successfully.");
-                return new KeyValuePair<string, string>(query, connectionString);
+                else
+                {
+                    _logger.LogError("DatabasePlugin failed: Connection is not valid.");
+                    throw new InvalidOperationException("Database connection is not valid.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _logger.LogError("DatabasePlugin failed: Connection is not valid.");
-                return new KeyValuePair<string, string>();
+                _logger.LogError(ex, "An error occurred while executing DatabasePlugin.");
+                throw;
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while executing DatabasePlugin.");
-            return new KeyValuePair<string, string>();
         }
     }
 }
