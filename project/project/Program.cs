@@ -1,22 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using project.DependencyInjection;
-using project.DependencyInjection;
-using project.MyApplication;
 using project.DependencyInjection;
 using project.MyApplication.Abstraction;
 
-namespace project;
-
-class Program
+namespace project
 {
-    static void Main(string[] args)
+    class Program
     {
-  
-        var builder = Host.CreateApplicationBuilder(args);
-        builder.Services.AddProjectServices();
-        var host = builder.Build();
-        var application = host.Services.GetRequiredService<IApplication>();
-        application.Run();
+        static async Task Main(string[] args)
+        {
+            var builder = Host.CreateApplicationBuilder(args);
+            builder.Services.AddProjectServices();
+            var host = builder.Build();
+
+            var application = host.Services.GetRequiredService<IApplication>();
+            await application.RunAsync();
+        }
     }
 }

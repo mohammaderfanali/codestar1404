@@ -1,11 +1,10 @@
-﻿using project.Plugins.Abstraction;
-using project.Topological_sort.Models;
+﻿using project.Topological_sort.Models;
+using System.Threading.Tasks;
 
-namespace project.PluginManager.Abstraction;
-
-public interface IPluginRunner
+namespace project.PluginManager.Abstraction
 {
-    void  AddPlugin(IPlugin plugin);
-
-    public Task Runscenario(Graph dag);
+    public interface IPluginRunner
+    {
+        Task Runscenario(Graph dag);
+    }
 }

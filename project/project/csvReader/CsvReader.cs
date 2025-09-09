@@ -34,6 +34,7 @@ public class CsvReader : ICsvReader
         {
             _logger.LogError(ex, "An unexpected error occurred while reading the file {FilePath}.", filePath);
         }
+        
 
         return data;
     }
@@ -44,9 +45,10 @@ public class CsvReader : ICsvReader
         {
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
-                throw new FileNotFoundException("File not found at the specified path.", filePath);
+                _logger.LogWarning("The file at {FilePath} was not found.", filePath);
             }
-            return Path.GetFileName(filePath);
+            return Path.GetFileNameWithoutExtension(filePath);
+             
         }
         catch (FileNotFoundException ex)
         {
@@ -65,15 +67,12 @@ public string[] GetColumnHeaders(string filePath)
 {
     try
     {
-
         var headerLine = File.ReadLines(filePath).FirstOrDefault();
-
         if (string.IsNullOrEmpty(headerLine))
         {
             _logger.LogWarning("CSV file at {FilePath} is empty or has an empty header.", filePath);
             return Array.Empty<string>();
         }
-
         return headerLine.Split(',');
     }
     catch (FileNotFoundException ex)

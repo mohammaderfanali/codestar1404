@@ -18,9 +18,6 @@ public class DatabaseRederModel
 
     [JsonPropertyName("Database")]
     public required string Database { get; set; }
-
-    [JsonPropertyName("UseSSL")]
-    public bool UseSsl { get; set; } = false;
     
     [JsonPropertyName("Tablename")] 
     public required string Tablename { get; set; }

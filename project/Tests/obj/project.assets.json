@@ -2994,32 +2994,39 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Laptopkaran\\.nuget\\packages\\": {}
+    "C:\\Users\\soroo\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\summer_term_4\\code-star\\project-star\\codestar1404\\project\\Tests\\Tests.csproj",
+      "projectUniqueName": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj",
       "projectName": "Tests",
-      "projectPath": "D:\\summer_term_4\\code-star\\project-star\\codestar1404\\project\\Tests\\Tests.csproj",
-      "packagesPath": "C:\\Users\\Laptopkaran\\.nuget\\packages\\",
-      "outputPath": "D:\\summer_term_4\\code-star\\project-star\\codestar1404\\project\\Tests\\obj\\",
+      "projectPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj",
+      "packagesPath": "C:\\Users\\soroo\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\Laptopkaran\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\soroo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "D:\\summer_term_4\\code-star\\project-star\\codestar1404\\project\\project\\project.csproj": {
-              "projectPath": "D:\\summer_term_4\\code-star\\project-star\\codestar1404\\project\\project\\project.csproj"
+            "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj": {
+              "projectPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj"
             }
           }
         }

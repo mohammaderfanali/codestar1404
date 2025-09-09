@@ -15,5 +15,13 @@
       "password": "yourpassword"
     }
   }
-}]
+},
+  {
+    "plugin": "JoinPlugin",
+    "data": {
+      "type":"inner",
+      "onfirst": "",
+      "onsecond": ""
+    }
+  }]
 

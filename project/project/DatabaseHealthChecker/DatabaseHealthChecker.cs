@@ -1,45 +1,49 @@
-﻿using Npgsql;
+﻿using System;
+using System.Threading.Tasks;
+using Npgsql;
 using project.DatabaseHealthChecker.Abstraction;
 
-namespace project.DatabaseHealthChecker;
-
-public class DatabaseHealthChecker : IDatabaseHealthChecker
+namespace project.DatabaseHealthChecker
 {
-    public async Task<bool> IsConnectionValidAsync(string connectionString)
+    
+    
+    public class DatabaseHealthChecker : IDatabaseHealthChecker
     {
-        
-        try
+        public async Task<bool> IsConnectionValidAsync(string connectionString)
         {
-            await using var connection = new NpgsqlConnection(connectionString);
-            await connection.OpenAsync();
-            return true;
+            try
+            {
+                await using var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Connection check failed: {ex.Message}");
+                return false;
+            }
         }
-        catch (Exception ex)
+
+        public async Task<bool> TableHasDataAsync(string connectionString, string tableName)
         {
-            Console.WriteLine($"Connection check failed: {ex.Message}");
-            return false;
-        }
-    }
+            try
+            {
+                await using var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
 
-    public async Task<bool> TableHasDataAsync(string connectionString, string tableName)
-    {
-        try
-        {
-            await using var connection = new NpgsqlConnection(connectionString);
-            await connection.OpenAsync();
+                var query = $"SELECT 1 FROM {tableName} LIMIT 1";
 
-            var query = $"SELECT 1 FROM {tableName} LIMIT 1";
+                await using var command = new NpgsqlCommand(query, connection);
+                
+                var result = await command.ExecuteScalarAsync();
 
-            await using var command = new NpgsqlCommand(query, connection);
-            
-            var result = await command.ExecuteScalarAsync();
-
-            return result != null;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Table check failed for '{tableName}': {ex.Message}");
-            return false;
+                return result != null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Table check failed for '{tableName}': {ex.Message}");
+                return false;
+            }
         }
     }
 }

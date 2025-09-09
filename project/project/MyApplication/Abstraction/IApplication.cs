@@ -4,5 +4,5 @@ namespace project.MyApplication.Abstraction;
 
 public interface IApplication
 {
-    public void Run();
+    Task RunAsync();
 }

@@ -132,11 +132,20 @@ namespace project.Plugins {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to D:\summer_term_4\code-star\project-star\codestar1404\project\project\Plugins\Form.json.
         /// </summary>
         internal static string jsonForm {
             get {
                 return ResourceManager.GetString("jsonForm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C:\Users\soroo\Desktop\star\khalafi\codestar1404\project\project\test.json.
+        /// </summary>
+        internal static string jsontest {
+            get {
+                return ResourceManager.GetString("jsontest", resourceCulture);
             }
         }
         
@@ -168,7 +177,7 @@ namespace project.Plugins {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &quot;Host=localhost;Port=5432;Username=postgres;Password=admin;Database=project&quot;.
+        ///   Looks up a localized string similar to Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;.
         /// </summary>
         internal static string uploadconnection {
             get {

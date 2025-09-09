@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using project.MyApplication.Abstraction;
@@ -6,44 +9,47 @@ using project.PluginManager.Abstraction;
 using project.Plugins;
 using project.Topological_sort.Models;
 
-namespace project.MyApplication;
-
-public class Application : IApplication
+namespace project.MyApplication
 {
-    private readonly ILogger<Application> _logger;
-    private readonly IPluginRunner _pluginRunner;
-    private readonly IConfiguration _configuration;
-    public Application(ILogger<Application> logger, IPluginRunner pluginRunner, IConfiguration configuration)
+    public class Application : IApplication
     {
-        _logger = logger;
-        _pluginRunner = pluginRunner;
-        _configuration = configuration;
-    }
+        private readonly ILogger<Application> _logger;
+        private readonly IPluginRunner _pluginRunner;
+        private readonly IConfiguration _configuration;
 
-    public void Run()
-    {
-        _logger.LogInformation("Application is starting.");
-
-
-        string jsonPath = path.jsonForm;
-
-        if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath))
+        public Application(ILogger<Application> logger, IPluginRunner pluginRunner, IConfiguration configuration)
         {
-            _logger.LogError("Scenario file path is not configured or the file does not exist at: {Path}", jsonPath);
-            return;
+            _logger = logger;
+            _pluginRunner = pluginRunner;
+            _configuration = configuration;
         }
 
-        _logger.LogInformation("Found scenario file at: {Path}", jsonPath);
-        var json = File.ReadAllText(jsonPath);
-        var dag = JsonSerializer.Deserialize<Graph>(json);
-        if (dag != null)
+        public async Task RunAsync()
         {
-            _pluginRunner.Runscenario(dag);
+            _logger.LogInformation("Application is starting.");
+
+            string jsonPath = path.jsontest; 
+
+            if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath))
+            {
+                _logger.LogError("Scenario file path is not configured or the file does not exist at: {Path}", jsonPath);
+                return;
+            }
+
+            _logger.LogInformation("Found scenario file at: {Path}", jsonPath);
+            var json = await File.ReadAllTextAsync(jsonPath);
+            var dag = JsonSerializer.Deserialize<Graph>(json);
+
+            if (dag != null)
+            {
+                await _pluginRunner.Runscenario(dag);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to deserialize the scenario file.");
+            }
+
+            _logger.LogInformation("Application has finished its work.");
         }
-        else
-        {
-            _logger.LogWarning("Failed to deserialize the scenario file.");
-        }
-        _logger.LogInformation("Application has finished its work.");
     }
 }

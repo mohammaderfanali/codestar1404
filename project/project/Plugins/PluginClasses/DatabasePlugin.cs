@@ -13,7 +13,6 @@ public class DatabasePlugin : IPlugin
 
     private readonly ILogger<DatabasePlugin> _logger;
     private readonly IDatabaseHealthChecker _dbChecker;
-    private readonly string _connectionString;
 
     public DatabasePlugin(
         ILogger<DatabasePlugin> logger,
@@ -22,7 +21,6 @@ public class DatabasePlugin : IPlugin
     {
         _logger = logger;
         _dbChecker = dbChecker;
-        _connectionString = configuration.GetConnectionString("UploadConnection");
     }
 
     public async Task<KeyValuePair<string, string>> Makequery(JsonElement commandelement,
@@ -35,28 +33,31 @@ public class DatabasePlugin : IPlugin
         }
 
         string jsoncommanddata = commandelement.GetRawText();
+        
         _logger.LogInformation("Running DatabasePlugin...");
-
-        var command = JsonSerializer.Deserialize<DatabaseRederModel>(jsoncommanddata);
-        if (command == null)
+        var config = JsonSerializer.Deserialize<DatabaseRederModel>(jsoncommanddata);
+        var connectionString= $"Host={config.Host};Port={config.Port};Username={config.Username};" +
+               $"Password={config.Password};Database={config.Database};";
+        
+        if (config == null)
         {
             _logger.LogError("Invalid command received for DatabasePlugin.");
             return new KeyValuePair<string, string>();
         }
 
-        string tableName = command.Tablename;
-        string query = $"SELECT * FROM [{tableName}];";
+        string tableName = config.Tablename;
+        string query = $"SELECT * FROM {tableName}";
 
         try
         {
-            if (await _dbChecker.IsConnectionValidAsync(_connectionString))
+            if (await _dbChecker.IsConnectionValidAsync(connectionString))
             {
-                if (!await _dbChecker.TableHasDataAsync(_connectionString, tableName))
+                if (!await _dbChecker.TableHasDataAsync(connectionString, tableName))
                 {
                     _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
                 }
                 _logger.LogInformation("DatabasePlugin executed successfully.");
-                return new KeyValuePair<string, string>(query, _connectionString);
+                return new KeyValuePair<string, string>(query, connectionString);
             }
             else
             {

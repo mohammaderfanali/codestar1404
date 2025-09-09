@@ -1,20 +1,54 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Npgsql;
+using project.QueryExecutor.Abstraction;
 
 namespace project.QueryExecutor
 {
-    public class QueryExecutor
+    public class QueryExecutor : IQueryExecutor
     {
-        public async Task<DataTable> ExecuteQueryAsync(KeyValuePair<string, string> queryPair)
+        private readonly ILogger<QueryExecutor> _logger;
+
+        public QueryExecutor(ILogger<QueryExecutor> logger)
         {
-            using var connection = new NpgsqlConnection(queryPair.Value);
-            using var command = new NpgsqlCommand(queryPair.Key, connection);
+            _logger = logger;
+        }
 
-            await connection.OpenAsync();
-            using var reader = await command.ExecuteReaderAsync();
+        public async Task<DataTable> ExecuteQueryAsync(string query, string connectionString)
+        {
+            if (string.IsNullOrWhiteSpace(query) || string.IsNullOrWhiteSpace(connectionString))
+            {
+                _logger.LogWarning("ExecuteQueryAsync called with null or empty query/connection string.");
+                throw new ArgumentException("Query and connection string must not be null or empty.");
+            }
 
+            _logger.LogInformation("Executing query: {Query}", query);
             var result = new DataTable();
-            result.Load(reader);
+
+            try
+            {
+                await using var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+                
+                await using var command = new NpgsqlCommand(query+=";", connection);
+                await using var reader = await command.ExecuteReaderAsync();
+
+                result.Load(reader);
+                _logger.LogInformation("Query executed successfully, returning {RowCount} rows.", result.Rows.Count);
+            }
+            catch (NpgsqlException ex)
+            {
+                _logger.LogError(ex, "A PostgreSQL error occurred while executing the query: {Query}", query);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while executing the query: {Query}", query);
+                throw;
+            }
+
             return result;
         }
     }

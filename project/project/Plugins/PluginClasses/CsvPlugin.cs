@@ -11,7 +11,7 @@ namespace project.Plugins.PluginClasses;
 
 public class CsvPlugin : IPlugin
 {
-    public string PluginName => "CsvPlugin";
+    public string PluginName => "CsvReaderPlugin";
 
 
     private readonly ILogger<CsvPlugin> _logger;
@@ -26,15 +26,13 @@ public class CsvPlugin : IPlugin
         ICsvReader csvReader,
         IDataBaseUploader dataBaseUploader,
         IDatabaseHealthChecker dbChecker,
-        IConfiguration configuration) // IConfiguration برای خواندن تنظیمات است
+        IConfiguration configuration) 
     {
         _logger = logger;
         _csvReader = csvReader;
         _dataBaseUploader = dataBaseUploader;
         _dbChecker = dbChecker;
-
-        // خواندن Connection String از appsettings.json
-        _connectionString = configuration.GetConnectionString("UploadConnection");
+        _connectionString = path.uploadconnection;
     }
 
     public async Task<KeyValuePair<string, string>> Makequery(JsonElement commandelement,
@@ -59,14 +57,12 @@ public class CsvPlugin : IPlugin
 
         try
         {
-            // --- 3. استفاده از سرویس‌های تزریق شده ---
             var tablename = _csvReader.GetFileName(command.Filepath);
             var content = _csvReader.ReadCsvFile(command.Filepath);
             var columnHeaders = _csvReader.GetColumnHeaders(command.Filepath);
 
-            await _dataBaseUploader.UploadDataAsync(_connectionString, tablename, columnHeaders, content);
+            await _dataBaseUploader.UploadDataAsync(_connectionString, tablename+"_copy", columnHeaders, content);
 
-            // بررسی وضعیت دیتابیس
             var isConnected = await _dbChecker.IsConnectionValidAsync(_connectionString);
             var hasData = await _dbChecker.TableHasDataAsync(_connectionString, tablename);
 
@@ -75,7 +71,7 @@ public class CsvPlugin : IPlugin
                 _logger.LogWarning("Data upload may not have been successful. IsConnected: {IsConnected}, HasData: {HasData}", isConnected, hasData);
             }
 
-            string query = $"SELECT * FROM [{tablename}]";
+            string query = $"SELECT * FROM {tablename}";
             _logger.LogInformation("CsvPlugin executed successfully.");
 
             return new KeyValuePair<string, string>(query, _connectionString);

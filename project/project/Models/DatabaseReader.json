@@ -4,7 +4,6 @@
   "Username": "postgres",
   "Password": "yourpassword",
   "Database": "mydatabase",
-  "UseSSL": false,
   "Tablename": "users"
 }
 

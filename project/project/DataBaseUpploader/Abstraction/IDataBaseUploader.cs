@@ -1,4 +1,6 @@
-﻿namespace project.DataBaseUpploader.Abstraction;
+﻿using Microsoft.Extensions.Logging;
+
+namespace project.DataBaseUpploader.Abstraction;
 
 public interface IDataBaseUploader
 {

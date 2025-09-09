@@ -19,7 +19,7 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="uploadconnection" xml:space="preserve">
-        <value>"Host=localhost;Port=5432;Username=postgres;Password=admin;Database=project"</value>
+        <value>Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;</value>
     </data>
     <data name="running_database_plugin" xml:space="preserve">
         <value>Running databaseReader plugin...</value>
@@ -56,5 +56,8 @@
     </data>
     <data name="jsonForm" xml:space="preserve">
         <value>D:\summer_term_4\code-star\project-star\codestar1404\project\project\Plugins\Form.json</value>
+    </data>
+    <data name="jsontest" xml:space="preserve">
+        <value>C:\Users\soroo\Desktop\star\khalafi\codestar1404\project\project\test.json</value>
     </data>
 </root>

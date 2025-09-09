@@ -1,0 +1,31 @@
+﻿{
+  "nodes": [
+    { "id": 1, "type": "CsvReaderPlugin", "data":
+    {
+        "filepath": "C:\\Users\\soroo\\Desktop\\users_contact.csv"
+    }
+    },
+    { "id": 2, "type": "DatabasePlugin", "data": {
+        "Host": "localhost",
+        "Port": 5432,
+        "Username": "postgres",
+        "Password": "admin",
+        "Database": "postgres",
+        "Tablename": "users_info"
+    }
+    },
+    { "id": 3, "type": "JoinPlugin", "data":
+     {
+      "type":"inner",
+      "onfirst": "username",
+      "onsecond": "username"
+    }
+    }
+
+  ],
+  "edges": [
+    { "from": 1, "to": 3 },
+    { "from": 2, "to": 3 }
+
+  ]
+}
