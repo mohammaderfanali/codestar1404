@@ -150,6 +150,15 @@ namespace project.Plugins {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to C:\Users\soroo\Desktop\star\khalafi\codestar1404\project\project\test2.json.
+        /// </summary>
+        internal static string jsontest2 {
+            get {
+                return ResourceManager.GetString("jsontest2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running csvreader plugin....
         /// </summary>
         internal static string running_csvreader {

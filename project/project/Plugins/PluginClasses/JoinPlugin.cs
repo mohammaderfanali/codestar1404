@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using project.DatabaseHealthChecker.Abstraction;
+using project.CreateTableFromQuery.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
+using project.TransferTablefromQuery.Abstraction;
 
 namespace project.Plugins.PluginClasses
 {
@@ -17,15 +12,17 @@ namespace project.Plugins.PluginClasses
     {
         public string PluginName => "JoinPlugin";
         private readonly ILogger<JoinPlugin> _logger;
-        private readonly IDatabaseHealthChecker _dbChecker;
+        private readonly ITableCreator _tableCreator;
+        private readonly IDataInserter _dataInserter;
 
         public JoinPlugin(
             ILogger<JoinPlugin> logger,
-            IDatabaseHealthChecker dbChecker,
-            IConfiguration configuration)
+            ITableCreator tableCreator,
+            IDataInserter dataInserter)
         {
             _logger = logger;
-            _dbChecker = dbChecker;
+            _tableCreator = tableCreator;
+            _dataInserter = dataInserter;
         }
 
         public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null)
@@ -65,18 +62,40 @@ namespace project.Plugins.PluginClasses
             if (firstConnection == secondConnection)
             {
                 string onClause = $"T1.\"{command.OnFirst}\" = T2.\"{command.OnSecond}\"";
-
                 string finalQuery = $"SELECT * FROM {firstQuery} AS T1 {command.Type.ToUpper()} JOIN {secondQuery} AS T2 ON {onClause}";
-
-                _logger.LogInformation("Successfully generated JOIN query for connection '{connection}'.", firstConnection);
-                
+                _logger.LogInformation("Successfully generated JOIN query for a single database connection.");
                 return new PluginOutput(finalQuery, firstConnection);
             }
             else
             {
-                _logger.LogWarning("Cross-database join attempted between '{conn1}' and '{conn2}'. This is not supported.", firstConnection, secondConnection);
-                throw new NotImplementedException("Cross-database joins are not supported by this plugin.");
+                _logger.LogInformation("Performing cross-database join. Staging data into the primary database.");
+                var destinationConnection = firstConnection;
+                var tempTableName = $"temp_join_{Guid.NewGuid():N}";
+
+                _logger.LogInformation("Creating temporary table '{TempTableName}' in destination.", tempTableName);
+                
+                await _tableCreator.CreateTableFromQueryAsync(
+                    sourceConnectionString: secondConnection,
+                    sourceQuery: secondQueryData.Query,
+                    destinationConnectionString: destinationConnection,
+                    newTableName: tempTableName);
+
+                await _dataInserter.TransferDataAsync(
+                    sourceConnectionString: secondConnection,
+                    sourceQuery: secondQueryData.Query,
+                    destinationConnectionString: destinationConnection,
+                    newTableName: tempTableName);
+
+                _logger.LogInformation("Successfully staged data into '{TempTableName}'.", tempTableName);
+
+                var secondQueryInDestDb = $"(SELECT * FROM \"{tempTableName}\")";
+                string onClause = $"T1.\"{command.OnFirst}\" = T2.\"{command.OnSecond}\"";
+                string finalQuery = $"SELECT * FROM {firstQuery} AS T1 {command.Type.ToUpper()} JOIN {secondQueryInDestDb} AS T2 ON {onClause}";
+                _logger.LogInformation("Successfully generated cross-database JOIN query.");
+                
+                return new PluginOutput(finalQuery, destinationConnection);
             }
         }
     }
 }
+

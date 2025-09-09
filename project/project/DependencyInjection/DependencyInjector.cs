@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using project;
+using project.CreateTableFromQuery;
+using project.CreateTableFromQuery.Abstraction;
 using project.csvReader;
 using project.csvReader.Abstraction;
 using project.DatabaseHealthChecker.Abstraction;
@@ -12,6 +14,8 @@ using project.PluginManager.Abstraction;
 using project.Plugins;
 using project.Plugins.Abstraction;
 using project.Plugins.PluginClasses;
+using project.TransferTablefromQuery;
+using project.TransferTablefromQuery.Abstraction;
 
 namespace project.DependencyInjection;
 
@@ -26,9 +30,14 @@ public static class DependencyRegistrationExtensions
         services.AddSingleton<IPlugin, DatabasePlugin>();
         services.AddSingleton<IPlugin, CsvPlugin>();
         services.AddSingleton<IPlugin, JoinPlugin>();
+        services.AddSingleton<IPlugin, OutputPlugin>();
+
         services.AddSingleton<IDatabaseHealthChecker, DatabaseHealthChecker.DatabaseHealthChecker>();
         services.AddSingleton<IDataBaseUploader, DataBaseUploader>();
         services.AddSingleton<IApplication, Application>();
+        services.AddSingleton<ITableCreator, TableCreator>();
+        services.AddSingleton<IDataInserter, DataInserter>();
+
 
         return services;
     }

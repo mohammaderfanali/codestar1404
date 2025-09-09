@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj": {}
+    "D:\\term 4\\codestar1404\\project\\Tests\\Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj": {
+    "D:\\term 4\\codestar1404\\project\\project\\project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj",
+        "projectUniqueName": "D:\\term 4\\codestar1404\\project\\project\\project.csproj",
         "projectName": "project",
-        "projectPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj",
-        "packagesPath": "C:\\Users\\soroo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\obj\\",
+        "projectPath": "D:\\term 4\\codestar1404\\project\\project\\project.csproj",
+        "packagesPath": "C:\\Users\\Laptopkaran\\.nuget\\packages\\",
+        "outputPath": "D:\\term 4\\codestar1404\\project\\project\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\soroo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Laptopkaran\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -62,6 +56,10 @@
               "target": "Package",
               "version": "[10.0.0-preview.7.25380.108, )"
             },
+            "NSubstitute": {
+              "target": "Package",
+              "version": "[5.3.0, )"
+            },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[9.0.4, )"
@@ -87,36 +85,30 @@
         }
       }
     },
-    "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj": {
+    "D:\\term 4\\codestar1404\\project\\Tests\\Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj",
+        "projectUniqueName": "D:\\term 4\\codestar1404\\project\\Tests\\Tests.csproj",
         "projectName": "Tests",
-        "projectPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\Tests.csproj",
-        "packagesPath": "C:\\Users\\soroo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\Tests\\obj\\",
+        "projectPath": "D:\\term 4\\codestar1404\\project\\Tests\\Tests.csproj",
+        "packagesPath": "C:\\Users\\Laptopkaran\\.nuget\\packages\\",
+        "outputPath": "D:\\term 4\\codestar1404\\project\\Tests\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\soroo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Laptopkaran\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj": {
-                "projectPath": "C:\\Users\\soroo\\Desktop\\star\\khalafi\\codestar1404\\project\\project\\project.csproj"
+              "D:\\term 4\\codestar1404\\project\\project\\project.csproj": {
+                "projectPath": "D:\\term 4\\codestar1404\\project\\project\\project.csproj"
               }
             }
           }

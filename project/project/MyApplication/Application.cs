@@ -28,7 +28,7 @@ namespace project.MyApplication
         {
             _logger.LogInformation("Application is starting.");
 
-            string jsonPath = path.jsontest; 
+            string jsonPath = path.jsontest2; 
 
             if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath))
             {
