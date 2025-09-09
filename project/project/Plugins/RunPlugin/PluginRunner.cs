@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using project.DataFlow;
+using project.Graph;
 using project.Models.pluginoutput;
-using project.PluginManager.Abstraction;
 using project.Plugins.Abstraction;
-using project.Topological_sort;
-using project.Topological_sort.GetParent;
-using project.Topological_sort.Models;
+using project.Plugins.RunPlugin.Abstraction;
 
-namespace project.PluginManager
+namespace project.Plugins.RunPlugin
 {
     public class PluginRunner : IPluginRunner
     {
@@ -24,7 +19,7 @@ namespace project.PluginManager
             _logger.LogInformation("Loaded {PluginCount} plugins.", _plugins.Count);
         }
 
-        public async Task Runscenario(Graph dag)
+        public async Task Runscenario(DataFlow.Models.Graph dag,CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting scenario execution...");
             try
@@ -53,16 +48,17 @@ namespace project.PluginManager
                                 }
                                 else
                                 {
-                                    _logger.LogWarning("Parent result with ID {ParentId} not found for node {NodeId}.", parentId, node.Id);
+                                    _logger.LogWarning("Parent result with ID {ParentId} not found for node {NodeId}.",
+                                        parentId, node.Id);
                                 }
                             }
 
                             _logger.LogInformation("Executing plugin {PluginName} for node {NodeId}...",
                                 foundPlugin.PluginName, node.Id);
-                            
+
                             var result = await foundPlugin.Makequery(node.Data, parentOutputs);
                             results.Add(node.Id, result);
-                            
+
                             _logger.LogInformation("Node {NodeId}: Result Query='{Query}'", node.Id, result.Query);
 
                             _logger.LogInformation("Plugin {PluginName} for node {NodeId} executed successfully.",
@@ -76,7 +72,8 @@ namespace project.PluginManager
                     }
                     else
                     {
-                        _logger.LogWarning("No plugin found for node type '{NodeType}' with ID {NodeId}.", node.Type, node.Id);
+                        _logger.LogWarning("No plugin found for node type '{NodeType}' with ID {NodeId}.", node.Type,
+                            node.Id);
                     }
                 }
             }
@@ -89,4 +86,3 @@ namespace project.PluginManager
         }
     }
 }
-

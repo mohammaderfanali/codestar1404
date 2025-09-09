@@ -1,11 +1,10 @@
-﻿using project.Topological_sort.Models;
+﻿using project.Graph.Models;
 
-namespace project.Topological_sort;
+namespace project.Graph;
 
 public class TopologicalSorter
 {
-    
-    public List<Node> Sort(Graph dag)
+    public List<Node> Sort(DataFlow.Models.Graph dag)
     {
         var inDegree = new Dictionary<int, int>();
         var graph = new Dictionary<int, List<int>>();

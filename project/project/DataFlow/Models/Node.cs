@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace project.Topological_sort.Models;
+namespace project.Graph.Models;
 
 public class Node
 {

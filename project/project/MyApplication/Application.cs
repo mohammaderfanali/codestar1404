@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using project.MyApplication.Abstraction;
-using project.PluginManager.Abstraction;
 using project.Plugins;
-using project.Topological_sort.Models;
+using project.Plugins.RunPlugin.Abstraction;
 
 namespace project.MyApplication
 {
@@ -28,7 +27,7 @@ namespace project.MyApplication
         {
             _logger.LogInformation("Application is starting.");
 
-            string jsonPath = path.jsontest2; 
+            string jsonPath = path.jsontest; 
 
             if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath))
             {
@@ -38,11 +37,11 @@ namespace project.MyApplication
 
             _logger.LogInformation("Found scenario file at: {Path}", jsonPath);
             var json = await File.ReadAllTextAsync(jsonPath);
-            var dag = JsonSerializer.Deserialize<Graph>(json);
+            var dag = JsonSerializer.Deserialize<DataFlow.Models.Graph>(json);
 
             if (dag != null)
             {
-                await _pluginRunner.Runscenario(dag);
+                await _pluginRunner.Runscenario(dag,cancellationToken);
             }
             else
             {

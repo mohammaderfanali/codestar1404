@@ -28,7 +28,8 @@ namespace project.DataBaseUpploader
             _logger.LogInformation("Table {TableName} is ready.", tableName);
         }
 
-        public async Task UploadDataAsync(string connectionString, string tableName, string[] headers, List<string[]> data)
+        public async Task UploadDataAsync(string connectionString, string tableName, string[] headers,
+            List<string[]> data)
         {
             if (data == null || !data.Any())
             {
@@ -43,14 +44,15 @@ namespace project.DataBaseUpploader
             try
             {
                 await connection.OpenAsync();
-                
+
                 await CreateTableIfNotExistsAsync(connection, tableName, headers);
-                
+
                 var columnNames = string.Join(", ", headers.Select(h => $"\"{h.Trim()}\""));
                 var valueParams = string.Join(", ", headers.Select((_, i) => $"@p{i}"));
                 var sql = $"INSERT INTO \"{tableName}\" ({columnNames}) VALUES ({valueParams})";
-                
-                _logger.LogInformation("Starting upload of {RowCount} rows to table {TableName}.", data.Count, tableName);
+
+                _logger.LogInformation("Starting upload of {RowCount} rows to table {TableName}.", data.Count,
+                    tableName);
 
                 foreach (var row in data)
                 {
@@ -59,6 +61,7 @@ namespace project.DataBaseUpploader
                     {
                         command.Parameters.AddWithValue($"p{i}", row.Length > i ? (object)row[i] : DBNull.Value);
                     }
+
                     await command.ExecuteNonQueryAsync();
                 }
 
@@ -66,15 +69,18 @@ namespace project.DataBaseUpploader
             }
             catch (NpgsqlException ex)
             {
-                _logger.LogError(ex, "A PostgreSQL error occurred: {ErrorMessage}. Check connection details and database status.", ex.Message);
+                _logger.LogError(ex,
+                    "A PostgreSQL error occurred: {ErrorMessage}. Check connection details and database status.",
+                    ex.Message);
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while connecting to or uploading data to table {TableName}.", tableName);
+                _logger.LogError(ex,
+                    "An unexpected error occurred while connecting to or uploading data to table {TableName}.",
+                    tableName);
                 throw;
             }
         }
     }
 }
-

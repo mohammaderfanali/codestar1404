@@ -11,7 +11,8 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.7.25380.108" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.7.25380.108" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-preview.7.25380.108" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,6 +28,11 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>path.resx</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DataBase\" />
+      <Folder Include="DataFlow\GetParent\" />
     </ItemGroup>
 
 </Project>

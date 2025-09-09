@@ -1,11 +1,8 @@
-﻿using project.Topological_sort.Models;
-
-namespace project.Topological_sort.GetParent;
-
+﻿namespace project.DataFlow;
 
 public class NodeParentProvider
 {
-    public Dictionary<int, List<int>> GetParents(Graph graph)
+    public Dictionary<int, List<int>> GetParents(Models.Graph graph)
     {
         var parents = new Dictionary<int, List<int>>();
 

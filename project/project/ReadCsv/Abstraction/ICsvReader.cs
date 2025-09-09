@@ -1,4 +1,4 @@
-﻿namespace project.csvReader.Abstraction;
+﻿namespace project.ReadCsv.Abstraction;
 
 public interface ICsvReader
 {

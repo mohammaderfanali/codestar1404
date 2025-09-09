@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace project.Topological_sort.Models;
+namespace project.Graph.Models;
 
 public class Edge
 {

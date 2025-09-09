@@ -5,8 +5,6 @@ using project.DatabaseHealthChecker.Abstraction;
 
 namespace project.DatabaseHealthChecker
 {
-    
-    
     public class DatabaseHealthChecker : IDatabaseHealthChecker
     {
         public async Task<bool> IsConnectionValidAsync(string connectionString)
@@ -34,7 +32,7 @@ namespace project.DatabaseHealthChecker
                 var query = $"SELECT 1 FROM {tableName} LIMIT 1";
 
                 await using var command = new NpgsqlCommand(query, connection);
-                
+
                 var result = await command.ExecuteScalarAsync();
 
                 return result != null;

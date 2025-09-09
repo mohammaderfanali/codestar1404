@@ -1,74 +1,75 @@
-﻿using project.csvReader;
-using Xunit;
-
-namespace Tests.CsvReaderTest;
+﻿using Xunit;
 using Microsoft.Extensions.Logging;
+using project.ReadCsv;
+using System.IO;
 
-public class CsvReaderTests
+namespace Tests.CsvReaderTest
 {
-    [Fact]
-    public void ReadCsvFile_ValidFile_ReturnsParsedData()
+    public class CsvReaderTests
     {
-        string tempFile = Path.GetTempFileName();
-        File.WriteAllLines(tempFile, new[]
+        private readonly CsvReader _reader;
+        private readonly string _tempFile;
+
+        public CsvReaderTests()
         {
-            "name,age,city",
-            "Ali,30,Tehran",
-            "Sara,25,Isfahan"
-        });
+            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            var logger = loggerFactory.CreateLogger<CsvReader>();
+            _reader = new CsvReader(logger);
+            _tempFile = Path.GetTempFileName();
+        }
 
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        var logger = loggerFactory.CreateLogger<CsvReader>();
-        var reader = new CsvReader(logger);
-
-        var result = reader.ReadCsvFile(tempFile);
-
-        Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
-        Assert.Equal(new[] { "name", "age", "city" }, result[0]);
-        Assert.Equal(new[] { "Ali", "30", "Tehran" }, result[1]);
-        Assert.Equal(new[] { "Sara", "25", "Isfahan" }, result[2]);
-
-        File.Delete(tempFile);
-    }
-
-    [Fact]
-    public void ReadCsvFile_FileNotFound_ReturnsNull()
-    {
-        string fakePath = "nonexistent.csv";
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        var logger = loggerFactory.CreateLogger<CsvReader>();
-        var reader = new CsvReader(logger);
-
-        var result = reader.ReadCsvFile(fakePath);
-
-        Assert.Null(result);
-    }
-
-    [Fact]
-    public void ReadCsvFile_EmptyLines_IgnoresThem()
-    {
-        string tempFile = Path.GetTempFileName();
-        File.WriteAllLines(tempFile, new[]
+        [Fact]
+        public void ReadCsvFile_WithValidFile_ReturnsDataWithoutHeader()
         {
-            "name,age",
-            "",
-            "Ali,30",
-            "   ",
-            "Sara,25"
-        });
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        var logger = loggerFactory.CreateLogger<CsvReader>();
-        var reader = new CsvReader(logger);
+            File.WriteAllLines(_tempFile, new[]
+            {
+                "name,age,city",
+                "Ali,30,Tehran",
+                "Sara,25,Isfahan"
+            });
 
-        var result = reader.ReadCsvFile(tempFile);
+            var result = _reader.ReadCsvFile(_tempFile);
 
-        Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
-        Assert.Equal(new[] { "name", "age" }, result[0]);
-        Assert.Equal(new[] { "Ali", "30" }, result[1]);
-        Assert.Equal(new[] { "Sara", "25" }, result[2]);
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(new[] { "Ali", "30", "Tehran" }, result[0]);
+            Assert.Equal(new[] { "Sara", "25", "Isfahan" }, result[1]);
+            
+            File.Delete(_tempFile);
+        }
 
-        File.Delete(tempFile);
+        [Fact]
+        public void ReadCsvFile_WhenFileIsNotFound_ReturnsEmptyList()
+        {
+            string nonExistentFile = "this_file_does_not_exist.csv";
+
+            var result = _reader.ReadCsvFile(nonExistentFile);
+
+            Assert.NotNull(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void ReadCsvFile_WithEmptyLines_IgnoresThemAndReturnsData()
+        {
+            File.WriteAllLines(_tempFile, new[]
+            {
+                "name,age",
+                "",
+                "Ali,30",
+                "   ",
+                "Sara,25"
+            });
+            
+            var result = _reader.ReadCsvFile(_tempFile);
+
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(new[] { "Ali", "30" }, result[0]);
+            Assert.Equal(new[] { "Sara", "25" }, result[1]);
+            
+            File.Delete(_tempFile);
+        }
     }
 }
+
