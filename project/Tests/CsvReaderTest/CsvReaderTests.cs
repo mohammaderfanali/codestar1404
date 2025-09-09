@@ -2,6 +2,7 @@
 using Xunit;
 
 namespace Tests.CsvReaderTest;
+using Microsoft.Extensions.Logging;
 
 public class CsvReaderTests
 {
@@ -16,7 +17,9 @@ public class CsvReaderTests
             "Sara,25,Isfahan"
         });
 
-        var reader = new CsvReader();
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = loggerFactory.CreateLogger<CsvReader>();
+        var reader = new CsvReader(logger);
 
         var result = reader.ReadCsvFile(tempFile);
 
@@ -33,7 +36,9 @@ public class CsvReaderTests
     public void ReadCsvFile_FileNotFound_ReturnsNull()
     {
         string fakePath = "nonexistent.csv";
-        var reader = new CsvReader();
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = loggerFactory.CreateLogger<CsvReader>();
+        var reader = new CsvReader(logger);
 
         var result = reader.ReadCsvFile(fakePath);
 
@@ -52,8 +57,9 @@ public class CsvReaderTests
             "   ",
             "Sara,25"
         });
-
-        var reader = new CsvReader();
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var logger = loggerFactory.CreateLogger<CsvReader>();
+        var reader = new CsvReader(logger);
 
         var result = reader.ReadCsvFile(tempFile);
 

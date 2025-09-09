@@ -2,7 +2,7 @@
 
 namespace project.Plugins.Pluginmodels;
 
-public class DatabaseConnectionModel
+public class DatabaseRederModel
 {
     [JsonPropertyName("Host")]
     public required string Host { get; set; }

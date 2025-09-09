@@ -5,6 +5,6 @@ public interface IDataBaseUploader
     Task UploadDataAsync(
         string connectionString, 
         string tableName, 
-        List<string[]> data, 
-        bool skipHeaderRow = true);
+        string[] columnNames,
+        List<string[]> data);
 }

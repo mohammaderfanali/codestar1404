@@ -1,39 +1,49 @@
 ﻿using System.Text.Json;
-using project;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using project.MyApplication.Abstraction;
+using project.PluginManager.Abstraction;
 using project.Plugins;
-using project.Plugins.PluginClasses;
-using project.Topological_sort;
 using project.Topological_sort.Models;
-using project.Topological_sort.GetParent;
+
 namespace project.MyApplication;
 
-public class Application
+public class Application : IApplication
 {
+    private readonly ILogger<Application> _logger;
+    private readonly IPluginRunner _pluginRunner;
+    private readonly IConfiguration _configuration;
+    public Application(ILogger<Application> logger, IPluginRunner pluginRunner, IConfiguration configuration)
+    {
+        _logger = logger;
+        _pluginRunner = pluginRunner;
+        _configuration = configuration;
+    }
+
     public void Run()
     {
-        string jsonPath = "C:\\Users\\soroo\\Desktop\\star\\" +
-                          "codestar1404\\project\\project\\Plugins\\Form.json"; // Replace with your actual path
-        if (!File.Exists(jsonPath))
+        _logger.LogInformation("Application is starting.");
+
+
+        string jsonPath = path.jsonForm;
+
+        if (string.IsNullOrEmpty(jsonPath) || !File.Exists(jsonPath))
         {
-            Console.WriteLine(path.json_not_found);
+            _logger.LogError("Scenario file path is not configured or the file does not exist at: {Path}", jsonPath);
             return;
+        }
+
+        _logger.LogInformation("Found scenario file at: {Path}", jsonPath);
+        var json = File.ReadAllText(jsonPath);
+        var dag = JsonSerializer.Deserialize<Graph>(json);
+        if (dag != null)
+        {
+            _pluginRunner.Runscenario(dag);
         }
         else
         {
-            Console.WriteLine(path.json_found);
+            _logger.LogWarning("Failed to deserialize the scenario file.");
         }
-
-        var json = File.ReadAllText(jsonPath);
-        var dag = JsonSerializer.Deserialize<Graph>(json);
-        
-        var pluginmanager = new PluginManager.PluginManager();
-
-        var dbplugin = new DatabasePlugin();
-        var csvplugin = new CsvPlugin();
-        
-        pluginmanager.AddPlugin(dbplugin);
-        pluginmanager.AddPlugin(csvplugin);
-
-        if (dag != null) pluginmanager.Runscenario(dag);
+        _logger.LogInformation("Application has finished its work.");
     }
 }

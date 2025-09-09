@@ -132,6 +132,15 @@ namespace project.Plugins {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string jsonForm {
+            get {
+                return ResourceManager.GetString("jsonForm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running csvreader plugin....
         /// </summary>
         internal static string running_csvreader {
@@ -146,6 +155,15 @@ namespace project.Plugins {
         internal static string running_database_plugin {
             get {
                 return ResourceManager.GetString("running_database_plugin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running Join Plugin.
+        /// </summary>
+        internal static string running_join {
+            get {
+                return ResourceManager.GetString("running join", resourceCulture);
             }
         }
         

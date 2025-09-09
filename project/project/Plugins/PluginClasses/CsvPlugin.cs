@@ -1,61 +1,90 @@
 ﻿using System.Text.Json;
-using project.csvReader;
-using project.DataBaseUpploader;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using project.csvReader.Abstraction;
+using project.DatabaseHealthChecker.Abstraction;
+using project.DataBaseUpploader.Abstraction;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
 
 namespace project.Plugins.PluginClasses;
 
-public class CsvPlugin:IPlugin
+public class CsvPlugin : IPlugin
 {
+    public string PluginName => "CsvPlugin";
 
 
-    public Task<KeyValuePair<string,string>> Makequery(JsonElement commandelement,
+    private readonly ILogger<CsvPlugin> _logger;
+    private readonly ICsvReader _csvReader;
+    private readonly IDataBaseUploader _dataBaseUploader;
+    private readonly IDatabaseHealthChecker _dbChecker;
+    private readonly string _connectionString;
+
+
+    public CsvPlugin(
+        ILogger<CsvPlugin> logger,
+        ICsvReader csvReader,
+        IDataBaseUploader dataBaseUploader,
+        IDatabaseHealthChecker dbChecker,
+        IConfiguration configuration) // IConfiguration برای خواندن تنظیمات است
+    {
+        _logger = logger;
+        _csvReader = csvReader;
+        _dataBaseUploader = dataBaseUploader;
+        _dbChecker = dbChecker;
+
+        // خواندن Connection String از appsettings.json
+        _connectionString = configuration.GetConnectionString("UploadConnection");
+    }
+
+    public async Task<KeyValuePair<string, string>> Makequery(JsonElement commandelement,
         List<KeyValuePair<string, string>> pastquery)
     {
-        if (pastquery.Count!=0)
-            throw new ArgumentException("csvreader has no pastquery");
+        if (pastquery.Count != 0)
+        {
+            _logger.LogWarning("CsvPlugin does not support past query inputs.");
+            throw new ArgumentException("CsvPlugin requires an empty query history to run.");
+        }
 
         string jsoncommanddata = commandelement.GetRawText();
-        
-        Console.WriteLine(path.running_csvreader);
-        
-        string connectionstring = path.uploadconnection;
-
         var command = JsonSerializer.Deserialize<CsvReaderModel>(jsoncommanddata);
-        if (command != null)
+
+        if (command == null)
         {
-            var filepath = command.Filepath;
-             var csvreader = new CsvReader();
-             var tablename = csvreader.GetFileName(filepath);
-             var content = csvreader.ReadCsvFile(filepath);
-             
-             
-             var dataBaseUploader = new DataBaseUploader();
-             
-             _ = dataBaseUploader.UploadDataAsync(connectionstring,
-                 csvreader.GetFileName(filepath),content);
-
-             var dbchecker = new DatabaseHealthChecker.DatabaseHealthChecker();
-             var connectionTask = dbchecker.IsConnectionValidAsync(connectionstring);
-             var dataTask = dbchecker.TableHasDataAsync(connectionstring, tablename);
-
-            string query="SELECT * FROM [" + tablename + "]";
-            
-            Console.WriteLine(path.csvreader_complete_succesfuly);
-
-            return Task.FromResult(new KeyValuePair<string, string>(query, connectionstring));
-                    
+            _logger.LogError("Invalid CsvPlugin command.");
+            return new KeyValuePair<string, string>();
         }
-        
-        Console.WriteLine(path.csvreader_complete_unsuccesfuly);
-        return Task.FromResult(new KeyValuePair<string, string>());
-        
-    }
 
-    public string Getpluginname()
-    {
-        return "csvreader";
+        _logger.LogInformation("Executing CsvPlugin for file: {FilePath}", command.Filepath);
+
+        try
+        {
+            // --- 3. استفاده از سرویس‌های تزریق شده ---
+            var tablename = _csvReader.GetFileName(command.Filepath);
+            var content = _csvReader.ReadCsvFile(command.Filepath);
+            var columnHeaders = _csvReader.GetColumnHeaders(command.Filepath);
+
+            await _dataBaseUploader.UploadDataAsync(_connectionString, tablename, columnHeaders, content);
+
+            // بررسی وضعیت دیتابیس
+            var isConnected = await _dbChecker.IsConnectionValidAsync(_connectionString);
+            var hasData = await _dbChecker.TableHasDataAsync(_connectionString, tablename);
+
+            if (!isConnected || !hasData)
+            {
+                _logger.LogWarning("Data upload may not have been successful. IsConnected: {IsConnected}, HasData: {HasData}", isConnected, hasData);
+            }
+
+            string query = $"SELECT * FROM [{tablename}]";
+            _logger.LogInformation("CsvPlugin executed successfully.");
+
+            return new KeyValuePair<string, string>(query, _connectionString);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while executing CsvPlugin.");
+            return new KeyValuePair<string, string>();
+        }
     }
-    
 }
+

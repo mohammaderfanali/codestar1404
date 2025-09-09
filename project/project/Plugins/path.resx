@@ -51,4 +51,10 @@
     <data name="json found" xml:space="preserve">
         <value>JSON file found.</value>
     </data>
+    <data name="running join" xml:space="preserve">
+        <value>Running Join Plugin</value>
+    </data>
+    <data name="jsonForm" xml:space="preserve">
+        <value>D:\summer_term_4\code-star\project-star\codestar1404\project\project\Plugins\Form.json</value>
+    </data>
 </root>

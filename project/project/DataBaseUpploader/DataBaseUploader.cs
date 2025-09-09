@@ -8,19 +8,16 @@ public class DataBaseUploader : IDataBaseUploader
 {
     public async Task UploadDataAsync(
         string connectionString, 
-        string tableName, 
-        List<string[]> data, 
-        bool skipHeaderRow = true)
+        string tableName,
+        string[] columnNames,
+        List<string[]> data)
     {
-        
+
         if (data.Count == 0)
         {
             Console.WriteLine("No data to upload.");
             return;
         }
-
-        var columnNames = data[0]; 
-        var dataToInsert = skipHeaderRow ? data.Skip(1) : data;
         
         await using var connection = new NpgsqlConnection(connectionString);
         await connection.OpenAsync();
@@ -39,7 +36,7 @@ public class DataBaseUploader : IDataBaseUploader
         
             await using (var writer = connection.BeginBinaryImport(copyCommand))
             {
-                foreach (var row in dataToInsert)
+                foreach (var row in data)
                 {
                     await writer.StartRowAsync();
                     foreach (var item in row)
@@ -51,7 +48,7 @@ public class DataBaseUploader : IDataBaseUploader
                 await writer.CompleteAsync();
             }
             
-            Console.WriteLine($"Successfully uploaded {dataToInsert.Count()} rows to '{tableName}'.");
+            Console.WriteLine($"Successfully uploaded {data.Count()} rows to '{tableName}'.");
         }
         catch (Exception ex)
         {

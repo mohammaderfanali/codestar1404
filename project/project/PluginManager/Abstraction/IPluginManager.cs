@@ -3,9 +3,9 @@ using project.Topological_sort.Models;
 
 namespace project.PluginManager.Abstraction;
 
-public interface IPluginManager
+public interface IPluginRunner
 {
-    void  Addplugin(IPlugin plugin);
-    void Runscenario(Graph dag);
+    void  AddPlugin(IPlugin plugin);
 
+    public Task Runscenario(Graph dag);
 }
