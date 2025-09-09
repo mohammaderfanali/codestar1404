@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using project.Graph.Models;
 using project.Services;
+using project.Services.Abstraction;
 
 namespace project.Controllers
 {
@@ -26,8 +27,6 @@ namespace project.Controllers
             }
 
             var scenarioId = _scenarioManager.StartScenario(dag);
-            
-            // Return the ID so the client can use it to cancel the job later
             return Ok(new { scenarioId });
         }
 

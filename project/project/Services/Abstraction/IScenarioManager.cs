@@ -1,7 +1,4 @@
-﻿using System;
-using project.Graph.Models;
-
-namespace project.Services
+﻿namespace project.Services.Abstraction
 {
     public interface IScenarioManager
     {

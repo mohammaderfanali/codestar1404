@@ -5,9 +5,6 @@ using project.CreateTableFromQuery.Abstraction;
 using project.DatabaseHealthChecker.Abstraction;
 using project.DataBaseUpploader;
 using project.DataBaseUpploader.Abstraction;
-using project.MyApplication;
-using project.MyApplication.Abstraction;
-using project.Plugins;
 using project.Plugins.Abstraction;
 using project.Plugins.PluginClasses;
 using project.Plugins.Pluginmodels;
@@ -15,6 +12,8 @@ using project.Plugins.RunPlugin;
 using project.Plugins.RunPlugin.Abstraction;
 using project.ReadCsv;
 using project.ReadCsv.Abstraction;
+using project.Services;
+using project.Services.Abstraction;
 using project.TransferTablefromQuery;
 using project.TransferTablefromQuery.Abstraction;
 
@@ -31,11 +30,13 @@ public static class DependencyRegistrationExtensions
         services.AddSingleton<IPlugin, JoinPlugin>();
         services.AddSingleton<IPlugin, OutputPlugin>();
         services.AddSingleton<IPlugin, AggregationPlugin>();
+        services.AddSingleton<IScenarioManager , ScenarioManager >();
+
+        
 
 
         services.AddSingleton<IDatabaseHealthChecker, DatabaseHealthChecker.DatabaseHealthChecker>();
         services.AddSingleton<IDataBaseUploader, DataBaseUploader>();
-        services.AddSingleton<IApplication, Application>();
         services.AddSingleton<ITableCreator, TableCreator>();
         services.AddSingleton<IDataInserter, DataInserter>();
         
