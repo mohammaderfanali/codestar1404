@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Npgsql;
+﻿using Npgsql;
 using project.DatabaseHealthChecker.Abstraction;
 
-namespace project.DatabaseHealthChecker
+namespace project.DataBase.DatabaseHealthChecker
 {
     public class DatabaseHealthChecker : IDatabaseHealthChecker
     {

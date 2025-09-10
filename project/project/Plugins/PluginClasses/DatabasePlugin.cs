@@ -52,6 +52,7 @@ namespace project.Plugins.PluginClasses
                     if (!await _dbChecker.TableHasDataAsync(connectionString, tableName))
                     {
                         _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
+                        throw  new InvalidOperationException("Table '" + tableName + "' is empty or does not exist.");;
                     }
                     _logger.LogInformation("DatabasePlugin executed successfully.");
                     return new PluginOutput(query, connectionString);

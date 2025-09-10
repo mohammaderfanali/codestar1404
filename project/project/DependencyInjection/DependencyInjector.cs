@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using project;
-using project.CreateTableFromQuery;
-using project.CreateTableFromQuery.Abstraction;
+using project.DataBase.CreateTableFromQuery;
+using project.DataBase.CreateTableFromQuery.Abstraction;
+using project.DataBase.QueryExecutor;
+using project.DataBase.QueryExecutor.Abstraction;
 using project.DatabaseHealthChecker.Abstraction;
 using project.DataBaseUpploader;
 using project.DataBaseUpploader.Abstraction;
@@ -35,10 +37,12 @@ public static class DependencyRegistrationExtensions
         
 
 
-        services.AddSingleton<IDatabaseHealthChecker, DatabaseHealthChecker.DatabaseHealthChecker>();
+        services.AddSingleton<IDatabaseHealthChecker, DataBase.DatabaseHealthChecker.DatabaseHealthChecker>();
         services.AddSingleton<IDataBaseUploader, DataBaseUploader>();
         services.AddSingleton<ITableCreator, TableCreator>();
         services.AddSingleton<IDataInserter, DataInserter>();
+        services.AddSingleton<ISelectQueryExecutor, SelectQueryExecutor>();
+
         
         return services;
     }

@@ -1,15 +1,15 @@
 ﻿using System.Data;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using project.QueryExecutor.Abstraction;
+using project.DataBase.QueryExecutor.Abstraction;
 
-namespace project.QueryExecutor
+namespace project.DataBase.QueryExecutor
 {
-    public class QueryExecutor : IQueryExecutor
+    public class SelectQueryExecutor : ISelectQueryExecutor
     {
-        private readonly ILogger<QueryExecutor> _logger;
+        private readonly ILogger<SelectQueryExecutor> _logger;
 
-        public QueryExecutor(ILogger<QueryExecutor> logger)
+        public SelectQueryExecutor(ILogger<SelectQueryExecutor> logger)
         {
             _logger = logger;
         }

@@ -1,57 +1,43 @@
 ﻿using System.Data;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Npgsql;
-using project.CreateTableFromQuery.Abstraction;
+using project.DataBase.CreateTableFromQuery.Abstraction;
+using project.DataBase.QueryExecutor.Abstraction;
 
-namespace project.CreateTableFromQuery
+namespace project.DataBase.CreateTableFromQuery
 {
     public class TableCreator : ITableCreator
     {
         private readonly ILogger<TableCreator> _logger;
+        private readonly ISelectQueryExecutor _queryExecutor;
 
-        public TableCreator(ILogger<TableCreator> logger)
+        public TableCreator(ILogger<TableCreator> logger, ISelectQueryExecutor queryExecutor)
         {
             _logger = logger;
+            _queryExecutor = queryExecutor;
         }
 
         public async Task CreateTableFromQueryAsync(string sourceConnectionString, string sourceQuery, string destinationConnectionString, string newTableName)
         {
             _logger.LogInformation("Starting table creation process for '{NewTableName}'.", newTableName);
 
-            DataTable schemaTable;
-            try
-            {
-                await using var sourceConnection = new NpgsqlConnection(sourceConnectionString);
-                await sourceConnection.OpenAsync();
-                await using var command = new NpgsqlCommand(sourceQuery, sourceConnection);
+            var dataTable = await _queryExecutor.ExecuteQueryAsync(sourceQuery, sourceConnectionString);
 
-                await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SchemaOnly);
-                schemaTable = await reader.GetSchemaTableAsync();
-            }
-            catch (Exception ex)
+            if (dataTable == null || dataTable.Columns.Count == 0)
             {
-                _logger.LogError(ex, "Failed to retrieve schema from the source query.");
-                throw;
-            }
-
-            if (schemaTable == null)
-            {
-                throw new InvalidOperationException($"Could not derive schema for table '{newTableName}'.");
+                throw new InvalidOperationException($"Could not derive schema for table '{newTableName}'. The query returned no columns.");
             }
             
-            var createTableSql = GenerateCreateTableSql(newTableName, schemaTable);
+            var createTableSql = GenerateCreateTableSql(newTableName, dataTable.Columns);
 
             try
             {
-                await using var destConnection = new NpgsqlConnection(destinationConnectionString);
-                await destConnection.OpenAsync();
-                
-                await using var dropCommand = new NpgsqlCommand($"DROP TABLE IF EXISTS \"{newTableName}\";", destConnection);
-                await dropCommand.ExecuteNonQueryAsync();
+                var dropSql = $"DROP TABLE IF EXISTS \"{newTableName}\";";
 
-                await using var createCommand = new NpgsqlCommand(createTableSql, destConnection);
-                await createCommand.ExecuteNonQueryAsync();
+                await _queryExecutor.ExecuteQueryAsync(dropSql, destinationConnectionString);
+
+                await _queryExecutor.ExecuteQueryAsync(createTableSql, destinationConnectionString);
+                
                 _logger.LogInformation("Successfully created table '{NewTableName}' in the destination database.", newTableName);
             }
             catch (Exception ex)
@@ -61,7 +47,7 @@ namespace project.CreateTableFromQuery
             }
         }
 
-        private string GenerateCreateTableSql(string tableName, DataTable schemaTable)
+        private string GenerateCreateTableSql(string tableName, DataColumnCollection columns)
         {
             var builder = new StringBuilder();
             builder.AppendLine($"CREATE TABLE \"{tableName}\" (");
@@ -69,9 +55,9 @@ namespace project.CreateTableFromQuery
             var processedColumnNames = new HashSet<string>();
             var columnDefinitions = new List<string>();
 
-            foreach (DataRow row in schemaTable.Rows)
+            foreach (DataColumn column in columns)
             {
-                var originalColumnName = (string)row["ColumnName"];
+                var originalColumnName = column.ColumnName;
                 var finalColumnName = originalColumnName;
                 int suffix = 1;
 
@@ -81,7 +67,7 @@ namespace project.CreateTableFromQuery
                 }
 
                 processedColumnNames.Add(finalColumnName);
-                var columnType = GetPostgresType((Type)row["DataType"]);
+                var columnType = GetPostgresType(column.DataType);
                 columnDefinitions.Add($"    \"{finalColumnName}\" {columnType}");
             }
 

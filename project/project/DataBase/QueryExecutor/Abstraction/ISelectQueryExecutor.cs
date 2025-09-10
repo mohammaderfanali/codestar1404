@@ -1,9 +1,8 @@
 ﻿using System.Data;
-using System.Threading.Tasks;
 
-namespace project.QueryExecutor.Abstraction
+namespace project.DataBase.QueryExecutor.Abstraction
 {
-    public interface IQueryExecutor
+    public interface ISelectQueryExecutor
     {
         Task<DataTable> ExecuteQueryAsync(string query, string connectionString);
     }
