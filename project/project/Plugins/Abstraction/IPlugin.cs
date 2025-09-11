@@ -8,6 +8,6 @@ namespace project.Plugins.Abstraction
     public interface IPlugin
     {
         string PluginName { get; }
-        Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null);
+        Task<PluginOutput> Makequery(JsonElement commandelement,CancellationToken cancellationToken, List<PluginOutput> pastOutputs = null);
     }
 }

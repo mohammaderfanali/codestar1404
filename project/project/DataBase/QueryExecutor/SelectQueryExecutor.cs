@@ -14,7 +14,8 @@ namespace project.DataBase.QueryExecutor
             _logger = logger;
         }
 
-        public async Task<DataTable> ExecuteQueryAsync(string query, string connectionString)
+        public async Task<DataTable> ExecuteQueryAsync(string query, string connectionString,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(query) || string.IsNullOrWhiteSpace(connectionString))
             {
@@ -28,13 +29,18 @@ namespace project.DataBase.QueryExecutor
             try
             {
                 await using var connection = new NpgsqlConnection(connectionString);
-                await connection.OpenAsync();
-                
-                await using var command = new NpgsqlCommand(query+=";", connection);
-                await using var reader = await command.ExecuteReaderAsync();
+                await connection.OpenAsync(cancellationToken);
+
+                await using var command = new NpgsqlCommand(query += ";", connection);
+                await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
                 result.Load(reader);
                 _logger.LogInformation("Query executed successfully, returning {RowCount} rows.", result.Rows.Count);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Query execution was canceled by the user: {Query}", query);
+                throw;
             }
             catch (NpgsqlException ex)
             {

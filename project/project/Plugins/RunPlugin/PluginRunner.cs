@@ -32,9 +32,10 @@ namespace project.Plugins.RunPlugin
                 _logger.LogInformation("{NodeCount} nodes sorted for processing.", sortedNodes.Count);
 
                 var results = new Dictionary<int, PluginOutput>();
-
+                
                 foreach (var node in sortedNodes)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (_plugins.TryGetValue(node.Type, out var foundPlugin))
                     {
                         try
@@ -56,13 +57,18 @@ namespace project.Plugins.RunPlugin
                             _logger.LogInformation("Executing plugin {PluginName} for node {NodeId}...",
                                 foundPlugin.PluginName, node.Id);
 
-                            var result = await foundPlugin.Makequery(node.Data, parentOutputs);
+                            var result = await foundPlugin.Makequery(node.Data,cancellationToken, parentOutputs);
                             results.Add(node.Id, result);
 
                             _logger.LogInformation("Node {NodeId}: Result Query='{Query}'", node.Id, result.Query);
 
                             _logger.LogInformation("Plugin {PluginName} for node {NodeId} executed successfully.",
                                 foundPlugin.PluginName, node.Id);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            _logger.LogWarning("Scenario execution was canceled in PluginRunner.");
+                            throw;
                         }
                         catch (Exception ex)
                         {

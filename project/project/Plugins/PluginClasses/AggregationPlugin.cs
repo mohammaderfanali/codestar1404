@@ -1,16 +1,87 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using project.Models.pluginoutput;
+using project.Plugins.Abstraction;
+using project.Plugins.PluginClasses;
 
-namespace project.Plugins.PluginClasses
+namespace project.Plugins.Pluginmodels
 {
-    public class AggregationModel
+    public class AggregationPlugin : IPlugin
     {
-        [JsonPropertyName("aggregationType")]
-        public required string AggregationType { get; set; }
+        public string PluginName => "AggregationPlugin";
+        private readonly ILogger<AggregationPlugin> _logger;
 
-        [JsonPropertyName("aggregationColumn")]
-        public required string AggregationColumn { get; set; }
+        private static readonly HashSet<string> ValidAggregationFunctions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "COUNT", "SUM", "AVG", "MIN", "MAX"
+        };
 
-        [JsonPropertyName("groupByColumns")]
-        public required List<string> GroupByColumns { get; set; }
+        public AggregationPlugin(ILogger<AggregationPlugin> logger)
+        {
+            _logger = logger;
+        }
+
+        public Task<PluginOutput> Makequery(JsonElement commandelement, CancellationToken cancellationToken,
+            List<PluginOutput> parentOutputs)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _logger.LogInformation("Executing AggregationPlugin...");
+
+            try
+            {
+                if (parentOutputs == null || !parentOutputs.Any())
+                {
+                    _logger.LogError("AggregationPlugin requires a parent plugin output to operate on.");
+                    throw new ArgumentException("AggregationPlugin requires a parent plugin output.");
+                }
+
+                var command = JsonSerializer.Deserialize<AggregationModel>(commandelement.GetRawText());
+
+                if (command == null || !IsValidCommand(command))
+                {
+                    _logger.LogError("Invalid command data for AggregationPlugin.");
+                    throw new ArgumentException(
+                        "Invalid command for AggregationPlugin. Please provide aggregationType, aggregationColumn, and at least one groupByColumn.");
+                }
+
+                var parentOutput = parentOutputs.First();
+                var sourceQuery = parentOutput.Query;
+
+                if (string.IsNullOrWhiteSpace(sourceQuery))
+                {
+                    _logger.LogError("Parent query is null or empty.");
+                    throw new InvalidOperationException("Parent query cannot be null or empty for AggregationPlugin.");
+                }
+
+                var groupByClause = string.Join(", ", command.GroupByColumns.Select(c => $"\"{c.Trim()}\""));
+                var selectClause =
+                    $"{groupByClause}, {command.AggregationType.ToUpper()}(\"{command.AggregationColumn.Trim()}\") AS aggregated_value";
+
+                var finalQuery = $"SELECT {selectClause} FROM ({sourceQuery}) AS data GROUP BY {groupByClause}";
+
+                _logger.LogInformation("Successfully generated aggregation query.");
+
+                return Task.FromResult(new PluginOutput(finalQuery, parentOutput.ConnectionString));
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Execution of AggregationPlugin was canceled.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while executing AggregationPlugin.");
+                throw;
+            }
+        }
+
+        private bool IsValidCommand(AggregationModel command)
+        {
+            return !string.IsNullOrWhiteSpace(command.AggregationType) &&
+                   ValidAggregationFunctions.Contains(command.AggregationType) &&
+                   !string.IsNullOrWhiteSpace(command.AggregationColumn) &&
+                   command.GroupByColumns != null && command.GroupByColumns.Any();
+        }
     }
 }
+

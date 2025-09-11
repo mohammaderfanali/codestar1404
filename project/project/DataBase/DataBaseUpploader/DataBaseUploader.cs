@@ -17,19 +17,19 @@ namespace project.DataBaseUpploader
             _logger = logger;
         }
 
-        private async Task CreateTableIfNotExistsAsync(NpgsqlConnection connection, string tableName, string[] headers)
+        private async Task CreateTableIfNotExistsAsync(NpgsqlConnection connection, string tableName, string[] headers, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Checking if table {TableName} exists...", tableName);
             var columnDefinitions = string.Join(", ", headers.Select(h => $"\"{h.Trim()}\" TEXT"));
             var sql = $"CREATE TABLE IF NOT EXISTS \"{tableName}\" ({columnDefinitions})";
 
             await using var command = new NpgsqlCommand(sql, connection);
-            await command.ExecuteNonQueryAsync();
+            await command.ExecuteNonQueryAsync(cancellationToken);
             _logger.LogInformation("Table {TableName} is ready.", tableName);
         }
 
         public async Task UploadDataAsync(string connectionString, string tableName, string[] headers,
-            List<string[]> data)
+            List<string[]> data,CancellationToken cancellationToken)
         {
             if (data == null || !data.Any())
             {
@@ -43,9 +43,9 @@ namespace project.DataBaseUpploader
 
             try
             {
-                await connection.OpenAsync();
+                await connection.OpenAsync(cancellationToken);
 
-                await CreateTableIfNotExistsAsync(connection, tableName, headers);
+                await CreateTableIfNotExistsAsync(connection, tableName, headers,cancellationToken);
 
                 var columnNames = string.Join(", ", headers.Select(h => $"\"{h.Trim()}\""));
                 var valueParams = string.Join(", ", headers.Select((_, i) => $"@p{i}"));
@@ -62,10 +62,15 @@ namespace project.DataBaseUpploader
                         command.Parameters.AddWithValue($"p{i}", row.Length > i ? (object)row[i] : DBNull.Value);
                     }
 
-                    await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync(cancellationToken);
                 }
 
                 _logger.LogInformation("Successfully uploaded data to {TableName}.", tableName);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Data upload to table {TableName} was canceled.", tableName);
+                throw;
             }
             catch (NpgsqlException ex)
             {

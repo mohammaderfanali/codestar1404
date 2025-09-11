@@ -36,7 +36,7 @@ namespace project.Plugins.PluginClasses
             }
         }
 
-        public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement,CancellationToken cancellationToken, List<PluginOutput> pastOutputs = null)
         {
             if (pastOutputs != null && pastOutputs.Any())
             {
@@ -57,16 +57,22 @@ namespace project.Plugins.PluginClasses
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var tableName = Path.GetFileNameWithoutExtension(command.Filepath);
                 var content = _csvReader.ReadCsvFile(command.Filepath);
                 var columnHeaders = _csvReader.GetColumnHeaders(command.Filepath);
 
-                await _dataBaseUploader.UploadDataAsync(_connectionString, tableName, columnHeaders, content);
+                await _dataBaseUploader.UploadDataAsync(_connectionString, tableName, columnHeaders, content,cancellationToken);
 
                 string query = $"SELECT * FROM \"{tableName}\"";
                 _logger.LogInformation("CsvPlugin executed successfully, returning query for table '{TableName}'.", tableName);
 
                 return new PluginOutput(query, _connectionString);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Execution of CsvPlugin for file {FilePath} was canceled.", command.Filepath);
+                throw;
             }
             catch (Exception ex)
             {

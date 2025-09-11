@@ -4,6 +4,6 @@ namespace project.DataBase.QueryExecutor.Abstraction
 {
     public interface ISelectQueryExecutor
     {
-        Task<DataTable> ExecuteQueryAsync(string query, string connectionString);
+        Task<DataTable> ExecuteQueryAsync(string query, string connectionString,CancellationToken cancellationToken =  default);
     }
 }

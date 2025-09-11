@@ -17,11 +17,11 @@ namespace project.DataBase.CreateTableFromQuery
             _queryExecutor = queryExecutor;
         }
 
-        public async Task CreateTableFromQueryAsync(string sourceConnectionString, string sourceQuery, string destinationConnectionString, string newTableName)
+        public async Task CreateTableFromQueryAsync(string sourceConnectionString, string sourceQuery, string destinationConnectionString, string newTableName,CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting table creation process for '{NewTableName}'.", newTableName);
 
-            var dataTable = await _queryExecutor.ExecuteQueryAsync(sourceQuery, sourceConnectionString);
+            var dataTable = await _queryExecutor.ExecuteQueryAsync(sourceQuery, sourceConnectionString,cancellationToken);
 
             if (dataTable == null || dataTable.Columns.Count == 0)
             {
@@ -34,11 +34,16 @@ namespace project.DataBase.CreateTableFromQuery
             {
                 var dropSql = $"DROP TABLE IF EXISTS \"{newTableName}\";";
 
-                await _queryExecutor.ExecuteQueryAsync(dropSql, destinationConnectionString);
+                await _queryExecutor.ExecuteQueryAsync(dropSql, destinationConnectionString,cancellationToken);
 
-                await _queryExecutor.ExecuteQueryAsync(createTableSql, destinationConnectionString);
+                await _queryExecutor.ExecuteQueryAsync(createTableSql, destinationConnectionString,cancellationToken);
                 
                 _logger.LogInformation("Successfully created table '{NewTableName}' in the destination database.", newTableName);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Table creation for '{NewTableName}' was canceled.", newTableName);
+                throw; 
             }
             catch (Exception ex)
             {

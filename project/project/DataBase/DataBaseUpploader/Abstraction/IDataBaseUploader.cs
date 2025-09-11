@@ -8,5 +8,6 @@ public interface IDataBaseUploader
         string connectionString, 
         string tableName, 
         string[] columnNames,
-        List<string[]> data);
+        List<string[]> data,
+        CancellationToken cancellationToken =  default);
 }

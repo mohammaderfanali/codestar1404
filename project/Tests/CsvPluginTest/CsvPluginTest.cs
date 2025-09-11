@@ -20,6 +20,9 @@ public static class path
     public static string uploadconnection;
 }
 
+
+
+
 public class CsvPluginTests
 {
     private readonly ILogger<CsvPlugin> _logger;
@@ -34,7 +37,6 @@ public class CsvPluginTests
         _csvReader = Substitute.For<ICsvReader>();
         _dataBaseUploader = Substitute.For<IDataBaseUploader>();
         _configuration = Substitute.For<IConfiguration>();
-        
         path.uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
 
         _sut = new CsvPlugin(_logger, _csvReader, _dataBaseUploader, _configuration);
@@ -43,6 +45,7 @@ public class CsvPluginTests
     [Fact]
     public async Task When_MakeQueryIsCalledWithValidCommand_Expect_CorrectOutputToBeReturned()
     {
+        
         var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
         var commandElement = JsonDocument.Parse(jsonString).RootElement;
         
@@ -55,7 +58,7 @@ public class CsvPluginTests
         _csvReader.ReadCsvFile(filePath).Returns(new List<string[]>());
         _csvReader.GetColumnHeaders(filePath).Returns(headers);
         
-        var result = await _sut.Makequery(commandElement);
+        var result = await _sut.Makequery(commandElement,  CancellationToken.None,new List<PluginOutput>());
 
         Assert.NotNull(result);
         Assert.Equal(expectedQuery, result.Query);
@@ -65,7 +68,8 @@ public class CsvPluginTests
             expectedConnectionString,
             tableName,
             headers, 
-            Arg.Any<List<string[]>>());
+            Arg.Any<List<string[]>>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -75,7 +79,7 @@ public class CsvPluginTests
         var commandElement = JsonDocument.Parse(jsonString).RootElement;
         var pastOutputs = new List<PluginOutput> { new("some query", "some connection") };
         
-        await Assert.ThrowsAsync<ArgumentException>(() => _sut.Makequery(commandElement, pastOutputs));
+        await Assert.ThrowsAsync<ArgumentException>(() => _sut.Makequery(commandElement,CancellationToken.None, pastOutputs));
     }
 
     [Fact]
@@ -84,7 +88,7 @@ public class CsvPluginTests
         var jsonString = File.ReadAllText("../../../CsvPluginTest/invalidtest.json");
         var commandElement = JsonDocument.Parse(jsonString).RootElement;
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Makequery(commandElement));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Makequery(commandElement, CancellationToken.None , new List<PluginOutput>()));
     }
 
     [Fact]
@@ -92,16 +96,27 @@ public class CsvPluginTests
     {
         var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
         var commandElement = JsonDocument.Parse(jsonString).RootElement;
-        var filePath = "C:\\data\\sample.csv";
         var expectedException = new IOException("Database is unavailable");
-
-        _csvReader.ReadCsvFile(filePath).Returns(new List<string[]>());
-        _csvReader.GetColumnHeaders(filePath).Returns(Array.Empty<string>());
         
-        _dataBaseUploader.UploadDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<List<string[]>>())
+        _csvReader.ReadCsvFile(Arg.Any<string>()).Returns(new List<string[]>());
+        _csvReader.GetColumnHeaders(Arg.Any<string>()).Returns(new[] { "Id" });
+        
+        _dataBaseUploader.UploadDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<List<string[]>>(), Arg.Any<CancellationToken>())
                          .ThrowsAsync(expectedException);
         
-        var actualException = await Assert.ThrowsAsync<IOException>(() => _sut.Makequery(commandElement));
+        var actualException = await Assert.ThrowsAsync<IOException>(() => _sut.Makequery(commandElement,CancellationToken.None,  new List<PluginOutput>()));
         Assert.Equal(expectedException, actualException);
+    }
+    
+    [Fact]
+    public async Task When_MakeQueryIsCalledWithCanceledToken_Expect_OperationCanceledExceptionToBeThrown()
+    {
+        var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
+        var commandElement = JsonDocument.Parse(jsonString).RootElement;
+
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => _sut.Makequery(commandElement,cts.Token,new List<PluginOutput>()));
     }
 }

@@ -20,8 +20,10 @@ namespace project.Plugins.PluginClasses
             _dbChecker = dbChecker;
         }
 
-        public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> pastOutputs = null)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement,CancellationToken cancellationToken, List<PluginOutput> pastOutputs = null)
         {
+            
+            cancellationToken.ThrowIfCancellationRequested();
             if (pastOutputs != null && pastOutputs.Any())
             {
                 _logger.LogWarning("DatabasePlugin does not support past outputs from other plugins.");
@@ -47,9 +49,9 @@ namespace project.Plugins.PluginClasses
 
             try
             {
-                if (await _dbChecker.IsConnectionValidAsync(connectionString))
+                if (await _dbChecker.IsConnectionValidAsync(connectionString,cancellationToken))
                 {
-                    if (!await _dbChecker.TableHasDataAsync(connectionString, tableName))
+                    if (!await _dbChecker.TableHasDataAsync(connectionString, tableName,cancellationToken))
                     {
                         _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
                         throw  new InvalidOperationException("Table '" + tableName + "' is empty or does not exist.");;
@@ -62,6 +64,11 @@ namespace project.Plugins.PluginClasses
                     _logger.LogError("DatabasePlugin failed: Connection is not valid.");
                     throw new InvalidOperationException("Database connection is not valid.");
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Execution of DatabasePlugin was canceled.");
+                throw;
             }
             catch (Exception ex)
             {

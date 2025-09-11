@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using project.DataBase.CreateTableFromQuery.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
@@ -19,8 +17,6 @@ namespace project.Plugins.PluginClasses
         private readonly IDataInserter _dataInserter;
 
 
-
-
         public OutputPlugin(ILogger<OutputPlugin> logger, ITableCreator tableCreator, IDataInserter dataInserter)
         {
             _logger = logger;
@@ -29,8 +25,10 @@ namespace project.Plugins.PluginClasses
             _dataInserter = dataInserter;
         }
 
-        public async Task<PluginOutput> Makequery(JsonElement commandelement, List<PluginOutput> parentOutputs)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement, CancellationToken cancellationToken,
+            List<PluginOutput> parentOutputs)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _logger.LogInformation("Executing OutputPlugin...");
 
             if (parentOutputs == null || !parentOutputs.Any())
@@ -50,22 +48,26 @@ namespace project.Plugins.PluginClasses
 
             var finalQueryToStore = parentOutputs.First().Query;
             var finalconnectionstring = parentOutputs.First().ConnectionString;
-            
+
             try
             {
                 await _tableCreator.CreateTableFromQueryAsync(
-                    finalconnectionstring, finalQueryToStore, _storeConnectionString, tableName);
+                    finalconnectionstring, finalQueryToStore, _storeConnectionString, tableName, cancellationToken);
                 await _dataInserter.TransferDataAsync(
-                        finalconnectionstring, finalQueryToStore, _storeConnectionString, tableName);
-                
+                    finalconnectionstring, finalQueryToStore, _storeConnectionString, tableName, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Execution of OutputPlugin for table '{TableName}' was canceled.", tableName);
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                _logger.LogError(ex, "An error occurred while executing OutputPlugin for table '{TableName}'.", tableName);
+                throw; 
             }
+
             return parentOutputs.First();
         }
     }
 }
-
-
