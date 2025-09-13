@@ -63,8 +63,9 @@ namespace project.Plugins.PluginClasses
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while executing OutputPlugin for table '{TableName}'.", tableName);
-                throw; 
+                _logger.LogError(ex, "An error occurred while executing OutputPlugin for table '{TableName}'.",
+                    tableName);
+                throw;
             }
 
             return parentOutputs.First();

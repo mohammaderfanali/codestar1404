@@ -1,14 +1,11 @@
 ﻿using System.Text.Json.Serialization;
+using project.DataFlow.Models.Identifier;
 
 namespace project.Graph.Models;
 
 public class Edge
 {
-    [JsonPropertyName("from")]
-    public int From { get; set; }
+    [JsonPropertyName("from")] public NodeId From { get; set; }
 
-    [JsonPropertyName("to")]
-    public int To { get; set; }
-
-
+    [JsonPropertyName("to")] public NodeId To { get; set; }
 }

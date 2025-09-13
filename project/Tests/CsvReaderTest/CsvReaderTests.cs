@@ -1,75 +1,107 @@
-﻿using Xunit;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
 using project.ReadCsv;
-using System.IO;
+using Xunit;
 
-namespace Tests.CsvReaderTest
+namespace Tests.CsvReaderTest;
+
+public class CsvReaderTests
 {
-    public class CsvReaderTests
+    private readonly ILogger<CsvReader> _logger;
+    private readonly CsvReader _reader;
+
+    public CsvReaderTests()
     {
-        private readonly CsvReader _reader;
-        private readonly string _tempFile;
+        _logger = Substitute.For<ILogger<CsvReader>>();
+        _reader = new CsvReader(_logger);
+    }
 
-        public CsvReaderTests()
+    [Fact]
+    public void ReadCsvFile_ValidFile_ReturnsDataTableWithRowsAndColumns()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllLines(tempFile, new[]
         {
-            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = loggerFactory.CreateLogger<CsvReader>();
-            _reader = new CsvReader(logger);
-            _tempFile = Path.GetTempFileName();
-        }
+            "Name,Age,City",
+            "Ali,30,Tehran",
+            "Sara,25,Shiraz"
+        });
 
-        [Fact]
-        public void ReadCsvFile_WithValidFile_ReturnsDataWithoutHeader()
+        var result = _reader.ReadCsvFile(tempFile);
+
+        Assert.Equal("Name", result.Columns[0].ColumnName);
+        Assert.Equal("Age", result.Columns[1].ColumnName);
+        Assert.Equal("City", result.Columns[2].ColumnName);
+        Assert.Equal(2, result.Rows.Count);
+        Assert.Equal("Ali", result.Rows[0]["Name"]);
+        Assert.Equal("Shiraz", result.Rows[1]["City"]);
+        Assert.Equal(Path.GetFileNameWithoutExtension(tempFile), result.TableName);
+
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public void ReadCsvFile_EmptyFile_ReturnsEmptyTableAndLogsWarning()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllText(tempFile, "");
+
+        var result = _reader.ReadCsvFile(tempFile);
+
+        Assert.Empty(result.Columns);
+        Assert.Empty(result.Rows);
+
+        _logger.Received().Log(
+            LogLevel.Warning,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString().Contains("is empty")),
+            Arg.Any<Exception>(),
+            Arg.Any<Func<object, Exception, string>>()
+        );
+
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public void ReadCsvFile_RowWithWrongColumnCount_IsSkippedAndLogged()
+    {
+        var tempFile = Path.GetTempFileName();
+        File.WriteAllLines(tempFile, new[]
         {
-            File.WriteAllLines(_tempFile, new[]
-            {
-                "name,age,city",
-                "Ali,30,Tehran",
-                "Sara,25,Isfahan"
-            });
+            "Name,Age",
+            "Ali,30",
+            "InvalidRowWithExtraColumn,Extra,Oops"
+        });
 
-            var result = _reader.ReadCsvFile(_tempFile);
+        var result = _reader.ReadCsvFile(tempFile);
 
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
-            Assert.Equal(new[] { "Ali", "30", "Tehran" }, result[0]);
-            Assert.Equal(new[] { "Sara", "25", "Isfahan" }, result[1]);
-            
-            File.Delete(_tempFile);
-        }
+        Assert.Equal(1, result.Rows.Count);
+        Assert.Equal("Ali", result.Rows[0]["Name"]);
 
-        [Fact]
-        public void ReadCsvFile_WhenFileIsNotFound_ReturnsEmptyList()
-        {
-            string nonExistentFile = "this_file_does_not_exist.csv";
+        _logger.Received().Log(
+            LogLevel.Warning,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString().Contains("Skipping line")),
+            Arg.Any<Exception>(),
+            Arg.Any<Func<object, Exception, string>>()
+        );
 
-            var result = _reader.ReadCsvFile(nonExistentFile);
+        File.Delete(tempFile);
+    }
 
-            Assert.NotNull(result);
-            Assert.Empty(result);
-        }
+    [Fact]
+    public void ReadCsvFile_FileNotFound_ThrowsAndLogsError()
+    {
+        var path = "nonexistent.csv";
 
-        [Fact]
-        public void ReadCsvFile_WithEmptyLines_IgnoresThemAndReturnsData()
-        {
-            File.WriteAllLines(_tempFile, new[]
-            {
-                "name,age",
-                "",
-                "Ali,30",
-                "   ",
-                "Sara,25"
-            });
-            
-            var result = _reader.ReadCsvFile(_tempFile);
+        var ex = Assert.Throws<FileNotFoundException>(() => _reader.ReadCsvFile(path));
 
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
-            Assert.Equal(new[] { "Ali", "30" }, result[0]);
-            Assert.Equal(new[] { "Sara", "25" }, result[1]);
-            
-            File.Delete(_tempFile);
-        }
+        _logger.Received().Log(
+            LogLevel.Error,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString().Contains("was not found")),
+            Arg.Any<FileNotFoundException>(),
+            Arg.Any<Func<object, Exception, string>>()
+        );
     }
 }
-

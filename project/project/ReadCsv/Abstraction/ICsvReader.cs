@@ -1,8 +1,9 @@
-﻿namespace project.ReadCsv.Abstraction;
+﻿using System.Data;
 
-public interface ICsvReader
+namespace project.ReadCsv.Abstraction
 {
-    List<string[]> ReadCsvFile(string filePath);
-    string[] GetColumnHeaders(string filePath);
-    public string GetFileName(string filePath);
+    public interface ICsvReader
+    {
+        DataTable ReadCsvFile(string filePath);
+    }
 }

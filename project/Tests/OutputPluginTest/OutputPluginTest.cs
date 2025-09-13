@@ -13,14 +13,15 @@ public class OutputPluginTests
     private readonly ILogger<OutputPlugin> _logger;
     private readonly ITableCreator _tableCreator;
     private readonly IDataInserter _dataInserter;
-    private readonly OutputPlugin _sut; 
+    private readonly OutputPlugin _sut;
+    private readonly  string uploadconnection;
 
     public OutputPluginTests()
     {
         _logger = Substitute.For<ILogger<OutputPlugin>>();
         _tableCreator = Substitute.For<ITableCreator>();
         _dataInserter = Substitute.For<IDataInserter>();
-        path.uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
+        uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
 
         _sut = new OutputPlugin(_logger, _tableCreator, _dataInserter);
     }
@@ -37,10 +38,10 @@ public class OutputPluginTests
 
         Assert.Equal(parentOutputs[0], result);
         await _tableCreator.Received(1).CreateTableFromQueryAsync(
-            "source_connection", "SELECT * FROM source",  path.uploadconnection , "final_customer_report",
+            "source_connection", "SELECT * FROM source",  uploadconnection , "final_customer_report",
             Arg.Any<CancellationToken>());
         await _dataInserter.Received(1).TransferDataAsync(
-            "source_connection", "SELECT * FROM source",   path.uploadconnection, "final_customer_report",
+            "source_connection", "SELECT * FROM source",   uploadconnection, "final_customer_report",
             Arg.Any<CancellationToken>());
     }
 

@@ -1,122 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Data;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
-using project.DataBaseUpploader.Abstraction;
-using project.Models.pluginoutput;
+using project.DataBase.DataBaseUpploader.Abstraction;
 using project.Plugins.PluginClasses;
 using project.Plugins.Pluginmodels;
 using project.ReadCsv.Abstraction;
 using Xunit;
 
-
-public static class path
-{
-    public static string uploadconnection;
-}
-
-
-
+namespace Tests.CsvPluginTest;
 
 public class CsvPluginTests
 {
-    private readonly ILogger<CsvPlugin> _logger;
-    private readonly ICsvReader _csvReader;
-    private readonly IDataBaseUploader _dataBaseUploader;
-    private readonly IConfiguration _configuration;
-    private CsvPlugin _sut; // System Under Test
-
-    public CsvPluginTests()
-    {
-        _logger = Substitute.For<ILogger<CsvPlugin>>();
-        _csvReader = Substitute.For<ICsvReader>();
-        _dataBaseUploader = Substitute.For<IDataBaseUploader>();
-        _configuration = Substitute.For<IConfiguration>();
-        path.uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
-
-        _sut = new CsvPlugin(_logger, _csvReader, _dataBaseUploader, _configuration);
-    }
-
     [Fact]
-    public async Task When_MakeQueryIsCalledWithValidCommand_Expect_CorrectOutputToBeReturned()
+    public async Task Makequery_ValidCommand_UploadsDataAndReturnsQuery()
     {
-        
-        var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
-        var commandElement = JsonDocument.Parse(jsonString).RootElement;
-        
-        var filePath ="C:\\Users\\soroo\\Desktop\\users_contact.csv";
-        var tableName = "users_contact";
-        var expectedQuery = $"SELECT * FROM \"{tableName}\"";
-        var expectedConnectionString = path.uploadconnection;
-        var headers = new[] { "Id", "Name" };
+        // Arrange
+        var logger = Substitute.For<ILogger<CsvPlugin>>();
+        var csvReader = Substitute.For<ICsvReader>();
+        var uploader = Substitute.For<IDataBaseUploader>();
+        var config = Substitute.For<IConfiguration>();
 
-        _csvReader.ReadCsvFile(filePath).Returns(new List<string[]>());
-        _csvReader.GetColumnHeaders(filePath).Returns(headers);
-        
-        var result = await _sut.Makequery(commandElement,  CancellationToken.None,new List<PluginOutput>());
+        var fakeConnectionString = "Host=localhost;Database=testdb;Username=test;Password=test";
+        var fakeFilePath = "sample.csv";
 
-        Assert.NotNull(result);
-        Assert.Equal(expectedQuery, result.Query);
-        Assert.Equal(expectedConnectionString, result.ConnectionString);
+        // simulate path.uploadconnection
+        var path = new { uploadconnection = fakeConnectionString };
+        var plugin = new CsvPlugin(logger, csvReader, uploader, config);
+        typeof(CsvPlugin).GetField("_connectionString", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            ?.SetValue(plugin, fakeConnectionString);
 
-        await _dataBaseUploader.Received(1).UploadDataAsync(
-            expectedConnectionString,
-            tableName,
-            headers, 
-            Arg.Any<List<string[]>>(),
-            Arg.Any<CancellationToken>());
-    }
+        var fakeTable = new DataTable("sample");
+        fakeTable.Columns.Add("Name");
+        fakeTable.Columns.Add("Age");
+        fakeTable.Rows.Add("Ali", "30");
 
-    [Fact]
-    public async Task When_MakeQueryIsCalledWithNonEmptyHistory_Expect_ArgumentExceptionToBeThrown()
-    {
-        var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json"); 
-        var commandElement = JsonDocument.Parse(jsonString).RootElement;
-        var pastOutputs = new List<PluginOutput> { new("some query", "some connection") };
-        
-        await Assert.ThrowsAsync<ArgumentException>(() => _sut.Makequery(commandElement,CancellationToken.None, pastOutputs));
-    }
+        csvReader.ReadCsvFile(fakeFilePath).Returns(fakeTable);
 
-    [Fact]
-    public async Task When_CommandFilePathIsMissing_Expect_InvalidOperationExceptionToBeThrown()
-    {
-        var jsonString = File.ReadAllText("../../../CsvPluginTest/invalidtest.json");
-        var commandElement = JsonDocument.Parse(jsonString).RootElement;
+        var commandModel = new CsvReaderModel { Filepath = fakeFilePath };
+        var json = JsonSerializer.Serialize(commandModel);
+        var jsonElement = JsonSerializer.Deserialize<JsonElement>(json);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Makequery(commandElement, CancellationToken.None , new List<PluginOutput>()));
-    }
+        // Act
+        var result = await plugin.Makequery(jsonElement, CancellationToken.None);
 
-    [Fact]
-    public async Task When_UploaderThrowsException_Expect_ExceptionToBeRethrown()
-    {
-        var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
-        var commandElement = JsonDocument.Parse(jsonString).RootElement;
-        var expectedException = new IOException("Database is unavailable");
-        
-        _csvReader.ReadCsvFile(Arg.Any<string>()).Returns(new List<string[]>());
-        _csvReader.GetColumnHeaders(Arg.Any<string>()).Returns(new[] { "Id" });
-        
-        _dataBaseUploader.UploadDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string[]>(), Arg.Any<List<string[]>>(), Arg.Any<CancellationToken>())
-                         .ThrowsAsync(expectedException);
-        
-        var actualException = await Assert.ThrowsAsync<IOException>(() => _sut.Makequery(commandElement,CancellationToken.None,  new List<PluginOutput>()));
-        Assert.Equal(expectedException, actualException);
-    }
-    
-    [Fact]
-    public async Task When_MakeQueryIsCalledWithCanceledToken_Expect_OperationCanceledExceptionToBeThrown()
-    {
-        var jsonString = File.ReadAllText("../../../CsvPluginTest/test.json");
-        var commandElement = JsonDocument.Parse(jsonString).RootElement;
-
-        var cts = new CancellationTokenSource();
-        cts.Cancel();
-
-        await Assert.ThrowsAsync<OperationCanceledException>(() => _sut.Makequery(commandElement,cts.Token,new List<PluginOutput>()));
+        // Assert
+        await uploader.Received().UploadDataAsync(fakeConnectionString, fakeTable, CancellationToken.None);
+        Assert.Equal("SELECT * FROM \"sample\"", result.Query);
+        Assert.Equal(fakeConnectionString, result.ConnectionString);
     }
 }

@@ -1,13 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Data;
 
-namespace project.DataBaseUpploader.Abstraction;
+namespace project.DataBase.DataBaseUpploader.Abstraction;
 
 public interface IDataBaseUploader
 {
     Task UploadDataAsync(
         string connectionString, 
-        string tableName, 
-        string[] columnNames,
-        List<string[]> data,
+        DataTable table,
         CancellationToken cancellationToken =  default);
 }

@@ -4,6 +4,5 @@ namespace project.Plugins.Pluginmodels;
 
 public class CsvReaderModel
 {
-    [JsonPropertyName("filepath")]
-    public required string Filepath { get; set; }
+    [JsonPropertyName("filepath")] public required string Filepath { get; set; }
 }

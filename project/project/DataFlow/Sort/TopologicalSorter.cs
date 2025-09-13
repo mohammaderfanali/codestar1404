@@ -1,18 +1,19 @@
-﻿using project.Graph.Models;
+﻿using project.DataFlow.Models.Identifier;
+using project.DataFlow.Sort.Abstraction;
+using project.Graph.Models;
+namespace project.DataFlow.Sort;
 
-namespace project.Graph;
-
-public class TopologicalSorter
+public class TopologicalSorter : ITopologicalSorter
 {
     public List<Node> Sort(DataFlow.Models.Graph dag)
     {
-        var inDegree = new Dictionary<int, int>();
-        var graph = new Dictionary<int, List<int>>();
+        var inDegree = new Dictionary<NodeId, int>();
+        var graph = new Dictionary<NodeId, List<NodeId>>();
 
         foreach (var node in dag.Nodes)
         {
             inDegree[node.Id] = 0;
-            graph[node.Id] = new List<int>();
+            graph[node.Id] = new List<NodeId>();
         }
 
         foreach (var edge in dag.Edges)
@@ -21,7 +22,7 @@ public class TopologicalSorter
             inDegree[edge.To]++;
         }
 
-        var queue = new Queue<int>(inDegree.Where(kv => kv.Value == 0).Select(kv => kv.Key));
+        var queue = new Queue<NodeId>(inDegree.Where(kv => kv.Value == 0).Select(kv => kv.Key));
         var sorted = new List<Node>();
 
         while (queue.Count > 0)

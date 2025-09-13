@@ -2,11 +2,11 @@
 using project;
 using project.DataBase.CreateTableFromQuery;
 using project.DataBase.CreateTableFromQuery.Abstraction;
+using project.DataBase.DataBaseUpploader;
+using project.DataBase.DataBaseUpploader.Abstraction;
 using project.DataBase.QueryExecutor;
 using project.DataBase.QueryExecutor.Abstraction;
 using project.DatabaseHealthChecker.Abstraction;
-using project.DataBaseUpploader;
-using project.DataBaseUpploader.Abstraction;
 using project.Plugins.Abstraction;
 using project.Plugins.PluginClasses;
 using project.Plugins.Pluginmodels;
@@ -32,9 +32,7 @@ public static class DependencyRegistrationExtensions
         services.AddSingleton<IPlugin, JoinPlugin>();
         services.AddSingleton<IPlugin, OutputPlugin>();
         services.AddSingleton<IPlugin, AggregationPlugin>();
-        services.AddSingleton<IScenarioManager , ScenarioManager >();
-
-        
+        services.AddSingleton<IScenarioManager, ScenarioManager>();
 
 
         services.AddSingleton<IDatabaseHealthChecker, DataBase.DatabaseHealthChecker.DatabaseHealthChecker>();
@@ -43,7 +41,7 @@ public static class DependencyRegistrationExtensions
         services.AddSingleton<IDataInserter, DataInserter>();
         services.AddSingleton<ISelectQueryExecutor, SelectQueryExecutor>();
 
-        
+
         return services;
     }
 }

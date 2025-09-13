@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using project.DataBaseUpploader.Abstraction;
+using project.DataBase.DataBaseUpploader.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
@@ -22,7 +22,7 @@ namespace project.Plugins.PluginClasses
             ILogger<CsvPlugin> logger,
             ICsvReader csvReader,
             IDataBaseUploader dataBaseUploader,
-            IConfiguration configuration) 
+            IConfiguration configuration)
         {
             _logger = logger;
             _csvReader = csvReader;
@@ -36,7 +36,8 @@ namespace project.Plugins.PluginClasses
             }
         }
 
-        public async Task<PluginOutput> Makequery(JsonElement commandelement,CancellationToken cancellationToken, List<PluginOutput> pastOutputs = null)
+        public async Task<PluginOutput> Makequery(JsonElement commandelement, CancellationToken cancellationToken,
+            List<PluginOutput> pastOutputs = null)
         {
             if (pastOutputs != null && pastOutputs.Any())
             {
@@ -52,20 +53,19 @@ namespace project.Plugins.PluginClasses
                 _logger.LogError("Invalid CsvPlugin command. 'FilePath' is required.");
                 throw new InvalidOperationException("Invalid command for CsvPlugin: FilePath is missing.");
             }
-            
+
             _logger.LogInformation("Executing CsvPlugin for file: {FilePath}", command.Filepath);
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var tableName = Path.GetFileNameWithoutExtension(command.Filepath);
-                var content = _csvReader.ReadCsvFile(command.Filepath);
-                var columnHeaders = _csvReader.GetColumnHeaders(command.Filepath);
+                var dataTable = _csvReader.ReadCsvFile(command.Filepath);
 
-                await _dataBaseUploader.UploadDataAsync(_connectionString, tableName, columnHeaders, content,cancellationToken);
+                await _dataBaseUploader.UploadDataAsync(_connectionString, dataTable, cancellationToken);
 
-                string query = $"SELECT * FROM \"{tableName}\"";
-                _logger.LogInformation("CsvPlugin executed successfully, returning query for table '{TableName}'.", tableName);
+                string query = $"SELECT * FROM \"{dataTable.TableName}\"";
+                _logger.LogInformation("CsvPlugin executed successfully, returning query for table '{TableName}'.",
+                    dataTable.TableName);
 
                 return new PluginOutput(query, _connectionString);
             }
@@ -82,4 +82,3 @@ namespace project.Plugins.PluginClasses
         }
     }
 }
-

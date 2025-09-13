@@ -5,10 +5,8 @@ namespace project.DataFlow.Models
 {
     public class Graph
     {
-        [JsonPropertyName("nodes")]
-        public required List<Node> Nodes { get; set; }
+        [JsonPropertyName("nodes")] public required List<Node> Nodes { get; set; }
 
-        [JsonPropertyName("edges")]
-        public required List<Edge> Edges { get; set; }
+        [JsonPropertyName("edges")] public required List<Edge> Edges { get; set; }
     }
 }

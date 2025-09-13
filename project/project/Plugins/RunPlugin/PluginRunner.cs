@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using project.DataFlow;
-using project.Graph;
+using project.DataFlow.GetParent;
+using project.DataFlow.Models.Identifier;
+using project.DataFlow.Sort;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.RunPlugin.Abstraction;
@@ -19,7 +20,7 @@ namespace project.Plugins.RunPlugin
             _logger.LogInformation("Loaded {PluginCount} plugins.", _plugins.Count);
         }
 
-        public async Task Runscenario(DataFlow.Models.Graph dag,CancellationToken cancellationToken)
+        public async Task Runscenario(DataFlow.Models.Graph dag, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting scenario execution...");
             try
@@ -31,8 +32,8 @@ namespace project.Plugins.RunPlugin
                 var parrents = parrNodes.GetParents(dag);
                 _logger.LogInformation("{NodeCount} nodes sorted for processing.", sortedNodes.Count);
 
-                var results = new Dictionary<int, PluginOutput>();
-                
+                var results = new Dictionary<NodeId, PluginOutput>();
+
                 foreach (var node in sortedNodes)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -57,7 +58,7 @@ namespace project.Plugins.RunPlugin
                             _logger.LogInformation("Executing plugin {PluginName} for node {NodeId}...",
                                 foundPlugin.PluginName, node.Id);
 
-                            var result = await foundPlugin.Makequery(node.Data,cancellationToken, parentOutputs);
+                            var result = await foundPlugin.Makequery(node.Data, cancellationToken, parentOutputs);
                             results.Add(node.Id, result);
 
                             _logger.LogInformation("Node {NodeId}: Result Query='{Query}'", node.Id, result.Query);

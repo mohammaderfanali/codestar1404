@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Data;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using project.DataBaseUpploader.Abstraction;
+using project.DataBase.DataBaseUpploader.Abstraction;
 
-namespace project.DataBaseUpploader
+namespace project.DataBase.DataBaseUpploader
 {
     public class DataBaseUploader : IDataBaseUploader
     {
@@ -17,25 +14,36 @@ namespace project.DataBaseUpploader
             _logger = logger;
         }
 
-        private async Task CreateTableIfNotExistsAsync(NpgsqlConnection connection, string tableName, string[] headers, CancellationToken cancellationToken)
+        private async Task CreateTableIfNotExistsAsync(NpgsqlConnection connection, DataTable table,
+            CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Checking if table {TableName} exists...", tableName);
-            var columnDefinitions = string.Join(", ", headers.Select(h => $"\"{h.Trim()}\" TEXT"));
-            var sql = $"CREATE TABLE IF NOT EXISTS \"{tableName}\" ({columnDefinitions})";
+            _logger.LogInformation("Checking if table {TableName} exists...", table.TableName);
+            var columnNames = table.Columns
+                .Cast<DataColumn>()
+                .Select(c => c.ColumnName)
+                .ToList();
+
+            var columnDefinitions = string.Join(", ", columnNames.Select(h => $"\"{h.Trim()}\" TEXT"));
+            var sql = $"CREATE TABLE IF NOT EXISTS \"{table.TableName}\" ({columnDefinitions})";
 
             await using var command = new NpgsqlCommand(sql, connection);
             await command.ExecuteNonQueryAsync(cancellationToken);
-            _logger.LogInformation("Table {TableName} is ready.", tableName);
+            _logger.LogInformation("Table {TableName} is ready.", table.TableName);
         }
 
-        public async Task UploadDataAsync(string connectionString, string tableName, string[] headers,
-            List<string[]> data,CancellationToken cancellationToken)
+        public async Task UploadDataAsync(string connectionString, DataTable table, CancellationToken cancellationToken)
         {
-            if (data == null || !data.Any())
+            if (table == null || table.Rows.Count == 0)
             {
-                _logger.LogWarning("No data provided to upload for table {TableName}.", tableName);
+                _logger.LogWarning("No data provided to upload for table {TableName}.", table?.TableName ?? "Unknown");
                 return;
             }
+
+            var tableName = table.TableName;
+            var columnNames = table.Columns
+                .Cast<DataColumn>()
+                .Select(c => c.ColumnName)
+                .ToList();
 
             _logger.LogInformation("Attempting to use connection string: \"{ConnectionString}\"", connectionString);
 
@@ -45,21 +53,22 @@ namespace project.DataBaseUpploader
             {
                 await connection.OpenAsync(cancellationToken);
 
-                await CreateTableIfNotExistsAsync(connection, tableName, headers,cancellationToken);
+                await CreateTableIfNotExistsAsync(connection, table, cancellationToken);
 
-                var columnNames = string.Join(", ", headers.Select(h => $"\"{h.Trim()}\""));
-                var valueParams = string.Join(", ", headers.Select((_, i) => $"@p{i}"));
-                var sql = $"INSERT INTO \"{tableName}\" ({columnNames}) VALUES ({valueParams})";
+                var quotedColumns = string.Join(", ", columnNames.Select(name => $"\"{name}\""));
+                var valueParams = string.Join(", ", columnNames.Select((_, i) => $"@p{i}"));
+                var sql = $"INSERT INTO \"{tableName}\" ({quotedColumns}) VALUES ({valueParams})";
 
-                _logger.LogInformation("Starting upload of {RowCount} rows to table {TableName}.", data.Count,
+                _logger.LogInformation("Starting upload of {RowCount} rows to table {TableName}.", table.Rows.Count,
                     tableName);
 
-                foreach (var row in data)
+                foreach (DataRow row in table.Rows)
                 {
                     await using var command = new NpgsqlCommand(sql, connection);
-                    for (int i = 0; i < headers.Length; i++)
+                    for (int i = 0; i < columnNames.Count; i++)
                     {
-                        command.Parameters.AddWithValue($"p{i}", row.Length > i ? (object)row[i] : DBNull.Value);
+                        var value = row[i] ?? DBNull.Value;
+                        command.Parameters.AddWithValue($"p{i}", value);
                     }
 
                     await command.ExecuteNonQueryAsync(cancellationToken);

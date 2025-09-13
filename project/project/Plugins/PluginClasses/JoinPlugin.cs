@@ -116,8 +116,6 @@ namespace project.Plugins.PluginClasses
                 _logger.LogError(ex, "An error occurred while executing JoinPlugin.");
                 throw;
             }
-
         }
     }
 }
-
