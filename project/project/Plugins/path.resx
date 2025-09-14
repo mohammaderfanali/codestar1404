@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="uploadconnection" xml:space="preserve">
+        <value>Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;</value>
+    </data>
+    <data name="running_database_plugin" xml:space="preserve">
+        <value>Running databaseReader plugin...</value>
+    </data>
+    <data name="DatabasePlugin_Makequery_empty_command" xml:space="preserve">
+        <value>empty command</value>
+    </data>
+    <data name="empty table" xml:space="preserve">
+        <value>Table is empty</value>
+    </data>
+    <data name="complete succesfuly" xml:space="preserve">
+        <value>databaseReader plugin completed successfully.</value>
+    </data>
+    <data name="complete unsuccesfuly" xml:space="preserve">
+        <value>databaseReader plugin completed unsuccessfully.</value>
+    </data>
+    <data name="running csvreader" xml:space="preserve">
+        <value>Running csvreader plugin...</value>
+    </data>
+    <data name="csvreader complete succesfuly" xml:space="preserve">
+        <value>csvreader plugin completed successfully</value>
+    </data>
+    <data name="csvreader complete unsuccesfuly" xml:space="preserve">
+        <value>csvreader plugin completed unsuccessfully</value>
+    </data>
+    <data name="json not found" xml:space="preserve">
+        <value>JSON file not found.</value>
+    </data>
+    <data name="json found" xml:space="preserve">
+        <value>JSON file found.</value>
+    </data>
+    <data name="running join" xml:space="preserve">
+        <value>Running Join Plugin</value>
+    </data>
+    <data name="jsonForm" xml:space="preserve">
+        <value>D:\summer_term_4\code-star\project-star\codestar1404\project\project\Plugins\Form.json</value>
+    </data>
+    <data name="jsontest" xml:space="preserve">
+        <value>C:\Users\soroo\Desktop\star\khalafi\codestar1404\project\project\test.json</value>
+    </data>
+    <data name="jsontest2" xml:space="preserve">
+        <value>C:\Users\soroo\Desktop\star\khalafi\codestar1404\project\project\test2.json</value>
+    </data>
+</root>

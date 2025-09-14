@@ -1,0 +1,43 @@
+﻿{
+  "nodes": [
+    { "id": 1, "type": "DatabasePlugin", "data": {
+      "Host": "localhost",
+      "Port": 5432,
+      "Username": "postgres",
+      "Password": "admin",
+      "Database": "postgres",
+      "Tablename": "users_contact"
+    }
+    },
+    { "id": 2, "type": "DatabasePlugin", "data": {
+      "Host": "localhost",
+      "Port": 5432,
+      "Username": "postgres",
+      "Password": "admin",
+      "Database": "postgres2",
+      "Tablename": "users_info"
+    }
+    },
+    { "id": 3, "type": "JoinPlugin", "data":
+    {
+      "type":"inner",
+      "onfirst": "username",
+      "onsecond": "username"
+    }
+    },
+    {
+      "id": 4,
+      "type": "OutputPlugin",
+      "data": {
+        "tableName": "final"
+      }
+    }
+
+  ],
+  "edges": [
+    { "from": 1, "to": 3 },
+    { "from": 2, "to": 3 },
+    { "from": 3, "to": 4 }
+
+  ]
+}
