@@ -25,7 +25,7 @@ public static class DependencyRegistrationExtensions
 {
     public static IServiceCollection AddProjectServices(this IServiceCollection services)
     {
-        services.AddSingleton<IPluginRunner, PluginRunner>();
+        services.AddSingleton<IDataFlowRunner, DataFlowRunner>();
         services.AddSingleton<ICsvReader, CsvReader>();
         services.AddSingleton<IPlugin, DatabasePlugin>();
         services.AddSingleton<IPlugin, CsvPlugin>();

@@ -12,9 +12,9 @@ namespace project.Services
 public class ScenarioService : IScenarioService
 {
     private readonly ILogger<ScenarioService> _logger;
-    private readonly IPluginRunner _pluginRunner;
+    private readonly IDataFlowRunner _pluginRunner;
 
-    public ScenarioService(ILogger<ScenarioService> logger, IPluginRunner pluginRunner)
+    public ScenarioService(ILogger<ScenarioService> logger, IDataFlowRunner pluginRunner)
     {
         _logger = logger;
         _pluginRunner = pluginRunner;
@@ -30,7 +30,7 @@ public class ScenarioService : IScenarioService
 
         _logger.LogInformation("Executing scenario via API call.");
             
-        await _pluginRunner.Runscenario(dag, cancellationToken);
+        await _pluginRunner.RunDataFlow(dag, cancellationToken);
     }
 }
 }
