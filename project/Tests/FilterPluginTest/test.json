@@ -1,0 +1,28 @@
+﻿{
+  "filterGroups": [
+      {
+        "conditions": [
+          {
+            "columnName": "name",
+            "operator": "Equals",
+            "value": "Ali"
+          },
+          {
+            "columnName": "lastName",
+            "operator": "Equals",
+            "value": "Alavi"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "columnName": "age",
+            "operator": "GreaterThan",
+            "value": 25
+          }
+        ]
+      }
+    ]
+  }
+

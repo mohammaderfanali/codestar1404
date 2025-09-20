@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using project.DatabaseHealthChecker.Abstraction;
+using project.DataBase.DatabaseHealthChecker.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
@@ -35,7 +35,7 @@ namespace project.Plugins.PluginClasses
             string jsoncommanddata = commandelement.GetRawText();
 
             _logger.LogInformation("Running DatabasePlugin...");
-            var config = JsonSerializer.Deserialize<DatabaseRederModel>(jsoncommanddata);
+            var config = JsonSerializer.Deserialize<DatabaseReaderModel>(jsoncommanddata);
 
             if (config == null)
             {
@@ -46,7 +46,7 @@ namespace project.Plugins.PluginClasses
             var connectionString = $"Host={config.Host};Port={config.Port};Username={config.Username};" +
                                    $"Password={config.Password};Database={config.Database};";
 
-            string tableName = config.Tablename;
+            string tableName = config.TableName;
             string query = $"SELECT * FROM \"{tableName}\"";
 
             try
@@ -57,7 +57,6 @@ namespace project.Plugins.PluginClasses
                     {
                         _logger.LogWarning("Table '{TableName}' is empty or does not exist.", tableName);
                         throw new InvalidOperationException("Table '" + tableName + "' is empty or does not exist.");
-                        ;
                     }
 
                     _logger.LogInformation("DatabasePlugin executed successfully.");

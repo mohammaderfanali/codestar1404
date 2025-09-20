@@ -2,7 +2,7 @@
 
 namespace project.Plugins.Pluginmodels;
 
-public class DatabaseRederModel
+public class DatabaseReaderModel
 {
     [JsonPropertyName("Host")] public required string Host { get; set; }
 
@@ -14,5 +14,5 @@ public class DatabaseRederModel
 
     [JsonPropertyName("Database")] public required string Database { get; set; }
 
-    [JsonPropertyName("Tablename")] public required string Tablename { get; set; }
+    [JsonPropertyName("Tablename")] public required string TableName { get; set; }
 }

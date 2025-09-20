@@ -1,11 +1,8 @@
-﻿using System;
-using System.Data;
-using System.IO;
-using System.Linq;
+﻿using System.Data;
 using Microsoft.Extensions.Logging;
 using project.ReadCsv.Abstraction;
 
-namespace project.ReadCsv
+namespace project.Helpers.ReadCsv
 {
     public class CsvReader : ICsvReader
     {

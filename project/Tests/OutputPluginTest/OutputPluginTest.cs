@@ -5,25 +5,23 @@ using NSubstitute.ExceptionExtensions;
 using project.DataBase.CreateTableFromQuery.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.PluginClasses;
-using project.TransferTablefromQuery.Abstraction;
 using Xunit;
+
+namespace Tests.OutputPluginTest;
 
 public class OutputPluginTests
 {
-    private readonly ILogger<OutputPlugin> _logger;
-    private readonly ITableCreator _tableCreator;
-    private readonly IDataInserter _dataInserter;
+    private readonly ITransferTable _transferTable;
     private readonly OutputPlugin _sut;
-    private readonly  string uploadconnection;
+    private readonly  string _uploadconnection;
 
     public OutputPluginTests()
     {
-        _logger = Substitute.For<ILogger<OutputPlugin>>();
-        _tableCreator = Substitute.For<ITableCreator>();
-        _dataInserter = Substitute.For<IDataInserter>();
-        uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
+        var logger = Substitute.For<ILogger<OutputPlugin>>();
+        _transferTable = Substitute.For<ITransferTable>();
+        _uploadconnection = "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=postgres;";
 
-        _sut = new OutputPlugin(_logger, _tableCreator, _dataInserter);
+        _sut = new OutputPlugin(logger, _transferTable);
     }
 
     [Fact]
@@ -37,14 +35,14 @@ public class OutputPluginTests
         var result = await _sut.Makequery(commandElement, CancellationToken.None, parentOutputs);
 
         Assert.Equal(parentOutputs[0], result);
-        await _tableCreator.Received(1).CreateTableFromQueryAsync(
-            "source_connection", "SELECT * FROM source",  uploadconnection , "final_customer_report",
+        await _transferTable.Received(1).Transfer(
+             "SELECT * FROM source","source_connection",  _uploadconnection , "final_customer_report",
             Arg.Any<CancellationToken>());
-        await _dataInserter.Received(1).TransferDataAsync(
-            "source_connection", "SELECT * FROM source",   uploadconnection, "final_customer_report",
+        await _transferTable.Received(1).Transfer(
+             "SELECT * FROM source","source_connection",   _uploadconnection, "final_customer_report",
             Arg.Any<CancellationToken>());
     }
-
+    
     [Fact]
     public async Task When_ParentOutputsAreEmpty_ShouldThrowArgumentException()
     {
@@ -64,18 +62,18 @@ public class OutputPluginTests
         var parentOutputs = new List<PluginOutput> { new("query", "connection") };
         var expectedException = new Exception("Data insertion failed");
 
-        _tableCreator.CreateTableFromQueryAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+        _transferTable.Transfer(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
                 Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.CompletedTask);
 
-        _dataInserter.TransferDataAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+        _transferTable.Transfer(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
                 Arg.Any<CancellationToken>())
             .ThrowsAsync(expectedException);
 
         var actualException = await Assert.ThrowsAsync<Exception>(() =>
             _sut.Makequery(commandElement, CancellationToken.None,parentOutputs));
         Assert.Equal(expectedException, actualException);
-        await _tableCreator.Received(1).CreateTableFromQueryAsync(Arg.Any<string>(), Arg.Any<string>(),
+        await _transferTable.Received(1).Transfer(Arg.Any<string>(), Arg.Any<string>(),
             Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 

@@ -4,7 +4,6 @@ using project.DataBase.CreateTableFromQuery.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
-using project.TransferTablefromQuery.Abstraction;
 
 namespace project.Plugins.PluginClasses
 {
@@ -12,17 +11,14 @@ namespace project.Plugins.PluginClasses
     {
         public string PluginName => "JoinPlugin";
         private readonly ILogger<JoinPlugin> _logger;
-        private readonly ITableCreator _tableCreator;
-        private readonly IDataInserter _dataInserter;
+        private readonly ITransferTable _transferTable;
 
         public JoinPlugin(
             ILogger<JoinPlugin> logger,
-            ITableCreator tableCreator,
-            IDataInserter dataInserter)
+            ITransferTable transferTable)
         {
             _logger = logger;
-            _tableCreator = tableCreator;
-            _dataInserter = dataInserter;
+            _transferTable = transferTable;
         }
 
         public async Task<PluginOutput> Makequery(JsonElement commandelement, CancellationToken cancellationToken,
@@ -77,23 +73,18 @@ namespace project.Plugins.PluginClasses
                 {
                     _logger.LogInformation("Performing cross-database join. Staging data into the primary database.");
                     var destinationConnection = firstConnection;
-                    var tempTableName = $"temp_join_{Guid.NewGuid():N}";
+                    var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    var tempTableName = $"temp_join_{timestamp}_{Guid.NewGuid():N}";
 
                     _logger.LogInformation("Creating temporary table '{TempTableName}' in destination.", tempTableName);
 
-                    await _tableCreator.CreateTableFromQueryAsync(
+                    await _transferTable.Transfer(
                         sourceQuery: secondQueryData.Query,
                         sourceConnectionString: secondConnection,
                         destinationConnectionString: destinationConnection,
                         newTableName: tempTableName,
                         cancellationToken: cancellationToken);
-
-                    await _dataInserter.TransferDataAsync(
-                        sourceConnectionString: secondConnection,
-                        sourceQuery: secondQueryData.Query,
-                        destinationConnectionString: destinationConnection,
-                        newTableName: tempTableName,
-                        cancellationToken: cancellationToken);
+                    
 
                     _logger.LogInformation("Successfully staged data into '{TempTableName}'.", tempTableName);
 

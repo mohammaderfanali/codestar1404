@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace project.Plugins.PluginClasses
+namespace project.Plugins.Pluginmodels
 {
     public class AggregationModel
     {

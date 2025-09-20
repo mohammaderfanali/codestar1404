@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using project.DatabaseHealthChecker.Abstraction;
+using project.DataBase.DatabaseHealthChecker.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.PluginClasses;
 using Xunit;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Npgsql;
-using project.DatabaseHealthChecker.Abstraction;
+using project.DataBase.DatabaseHealthChecker.Abstraction;
 
 namespace project.DataBase.DatabaseHealthChecker
 {

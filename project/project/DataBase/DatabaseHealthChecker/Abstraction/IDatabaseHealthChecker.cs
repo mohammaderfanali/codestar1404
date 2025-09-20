@@ -1,4 +1,4 @@
-﻿namespace project.DatabaseHealthChecker.Abstraction;
+﻿namespace project.DataBase.DatabaseHealthChecker.Abstraction;
 
 public interface IDatabaseHealthChecker
 {

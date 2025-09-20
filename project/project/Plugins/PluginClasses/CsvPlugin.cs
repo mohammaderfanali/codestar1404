@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using project.DataBase.DataBaseUpploader.Abstraction;
+using project.DataBase.DataTableUpploader.Abstraction;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
 using project.Plugins.Pluginmodels;
@@ -15,18 +15,18 @@ namespace project.Plugins.PluginClasses
 
         private readonly ILogger<CsvPlugin> _logger;
         private readonly ICsvReader _csvReader;
-        private readonly IDataBaseUploader _dataBaseUploader;
+        private readonly IDataTableUplouder _dataTableUplouder;
         private readonly string _connectionString;
 
         public CsvPlugin(
             ILogger<CsvPlugin> logger,
             ICsvReader csvReader,
-            IDataBaseUploader dataBaseUploader,
+            IDataTableUplouder dataTableUplouder,
             IConfiguration configuration)
         {
             _logger = logger;
             _csvReader = csvReader;
-            _dataBaseUploader = dataBaseUploader;
+            _dataTableUplouder = dataTableUplouder;
             _connectionString = path.uploadconnection;
 
             if (string.IsNullOrEmpty(_connectionString))
@@ -61,7 +61,7 @@ namespace project.Plugins.PluginClasses
                 cancellationToken.ThrowIfCancellationRequested();
                 var dataTable = _csvReader.ReadCsvFile(command.Filepath);
 
-                await _dataBaseUploader.UploadDataAsync(_connectionString, dataTable, cancellationToken);
+                await _dataTableUplouder.UploadDataAsync(_connectionString, dataTable, cancellationToken);
 
                 string query = $"SELECT * FROM \"{dataTable.TableName}\"";
                 _logger.LogInformation("CsvPlugin executed successfully, returning query for table '{TableName}'.",
