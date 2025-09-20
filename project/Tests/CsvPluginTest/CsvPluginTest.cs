@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using project.DataBase.DataBaseUpploader.Abstraction;
+using project.DataBase.DataTableUpploader.Abstraction;
 using project.Plugins.PluginClasses;
 using project.Plugins.Pluginmodels;
 using project.ReadCsv.Abstraction;
@@ -19,7 +19,7 @@ public class CsvPluginTests
         // Arrange
         var logger = Substitute.For<ILogger<CsvPlugin>>();
         var csvReader = Substitute.For<ICsvReader>();
-        var uploader = Substitute.For<IDataBaseUploader>();
+        var uploader = Substitute.For<IDataTableUplouder>();
         var config = Substitute.For<IConfiguration>();
 
         var fakeConnectionString = "Host=localhost;Database=testdb;Username=test;Password=test";

@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Logging;
 using project.Models.pluginoutput;
 using project.Plugins.Abstraction;
-using project.Plugins.PluginClasses;
+using project.Plugins.Pluginmodels;
 
-namespace project.Plugins.Pluginmodels
+namespace project.Plugins.PluginClasses
 {
     public class AggregationPlugin : IPlugin
     {
@@ -55,9 +55,9 @@ namespace project.Plugins.Pluginmodels
 
                 var groupByClause = string.Join(", ", command.GroupByColumns.Select(c => $"\"{c.Trim()}\""));
                 var selectClause =
-                    $"{groupByClause}, {command.AggregationType.ToUpper()}(\"{command.AggregationColumn.Trim()}\") AS aggregated_value";
+                    $"{groupByClause}, {command.AggregationType.ToUpper()}(\"{command.AggregationColumn.Trim()}\")";
 
-                var finalQuery = $"SELECT {selectClause} FROM ({sourceQuery}) AS data GROUP BY {groupByClause}";
+                var finalQuery = $"SELECT {selectClause} FROM ({sourceQuery}) GROUP BY {groupByClause}";
 
                 _logger.LogInformation("Successfully generated aggregation query.");
 

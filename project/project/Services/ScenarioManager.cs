@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using project.Graph.Models;
 using project.Services.Abstraction;
 
 namespace project.Services
@@ -13,12 +12,14 @@ namespace project.Services
     {
         private readonly ILogger<ScenarioManager> _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IScenarioStatusUpdater _statusUpdater;
         private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _runningScenarios = new();
 
-        public ScenarioManager(ILogger<ScenarioManager> logger, IServiceProvider serviceProvider)
+        public ScenarioManager(ILogger<ScenarioManager> logger, IServiceProvider serviceProvider, IScenarioStatusUpdater statusUpdater)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _statusUpdater = statusUpdater;
         }
 
         public Guid StartScenario(DataFlow.Models.Graph dag)
@@ -40,7 +41,7 @@ namespace project.Services
                 {
                     using var scope = _serviceProvider.CreateScope();
                     var scenarioService = scope.ServiceProvider.GetRequiredService<IScenarioService>();
-                    await scenarioService.ExecuteScenarioAsync(dag, cts.Token);
+                    await scenarioService.ExecuteScenarioAsync(scenarioId ,dag, cts.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -48,7 +49,7 @@ namespace project.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Scenario {ScenarioId} failed with an unhandled exception.", scenarioId);
+                    _logger.LogError("Scenario {ScenarioId} failed with an unhandled exception.", scenarioId);
                 }
                 finally
                 {
@@ -68,6 +69,7 @@ namespace project.Services
                 if (!cts.IsCancellationRequested)
                 {
                     _logger.LogWarning("Cancellation requested for scenario {ScenarioId}.", scenarioId);
+                    _statusUpdater.MarkAsCancelingAsync(scenarioId);
                     cts.Cancel();
                     return true;
                 }

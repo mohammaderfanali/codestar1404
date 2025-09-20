@@ -5,11 +5,11 @@ using project.DataBase.QueryExecutor.Abstraction;
 
 namespace project.DataBase.QueryExecutor
 {
-    public class SelectQueryExecutor : ISelectQueryExecutor
+    public class SelectSelectQueryExecutor : ISelectQueryExecutor
     {
-        private readonly ILogger<SelectQueryExecutor> _logger;
+        private readonly ILogger<SelectSelectQueryExecutor> _logger;
 
-        public SelectQueryExecutor(ILogger<SelectQueryExecutor> logger)
+        public SelectSelectQueryExecutor(ILogger<SelectSelectQueryExecutor> logger)
         {
             _logger = logger;
         }
@@ -44,12 +44,12 @@ namespace project.DataBase.QueryExecutor
             }
             catch (NpgsqlException ex)
             {
-                _logger.LogError(ex, "A PostgreSQL error occurred while executing the query: {Query}", query);
+                // _logger.LogError(ex, "A PostgreSQL error occurred while executing the query: {Query}", query);
                 throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while executing the query: {Query}", query);
+                // _logger.LogError(ex, "An unexpected error occurred while executing the query: {Query}", query);
                 throw;
             }
 

@@ -2,6 +2,6 @@
 {
     public interface IScenarioService
     {
-        Task ExecuteScenarioAsync(DataFlow.Models.Graph dag, CancellationToken cancellationToken);
+        Task ExecuteScenarioAsync(Guid scenarioId,DataFlow.Models.Graph dag, CancellationToken cancellationToken);
     }
 }

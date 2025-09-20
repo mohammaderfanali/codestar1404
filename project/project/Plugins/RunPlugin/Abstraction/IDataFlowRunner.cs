@@ -2,6 +2,6 @@
 {
     public interface IDataFlowRunner
     {
-        Task RunDataFlow(DataFlow.Models.Graph dag, CancellationToken cancellationToken);
+        Task RunDataFlow(Guid scenarioId ,DataFlow.Models.Graph dag, CancellationToken cancellationToken);
     }
 }

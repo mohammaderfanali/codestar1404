@@ -1,8 +1,8 @@
 ﻿using System.Data;
 
-namespace project.DataBase.DataBaseUpploader.Abstraction;
+namespace project.DataBase.DataTableUpploader.Abstraction;
 
-public interface IDataBaseUploader
+public interface IDataTableUplouder
 {
     Task UploadDataAsync(
         string connectionString, 

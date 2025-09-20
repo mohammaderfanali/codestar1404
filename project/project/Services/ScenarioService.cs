@@ -9,28 +9,28 @@ using project.Services.Abstraction;
 
 namespace project.Services
 {
-public class ScenarioService : IScenarioService
-{
-    private readonly ILogger<ScenarioService> _logger;
-    private readonly IDataFlowRunner _pluginRunner;
-
-    public ScenarioService(ILogger<ScenarioService> logger, IDataFlowRunner pluginRunner)
+    public class ScenarioService : IScenarioService
     {
-        _logger = logger;
-        _pluginRunner = pluginRunner;
-    }
+        private readonly ILogger<ScenarioService> _logger;
+        private readonly IDataFlowRunner _pluginRunner;
 
-    public async Task ExecuteScenarioAsync(DataFlow.Models.Graph dag, CancellationToken cancellationToken)
-    {
-        if (dag == null)
+        public ScenarioService( ILogger<ScenarioService> logger, IDataFlowRunner pluginRunner)
         {
-            _logger.LogWarning("Scenario graph is null. Nothing to execute.");
-            return;
+            _logger = logger;
+            _pluginRunner = pluginRunner;
         }
 
-        _logger.LogInformation("Executing scenario via API call.");
+        public async Task ExecuteScenarioAsync(Guid scenarioId, DataFlow.Models.Graph dag, CancellationToken cancellationToken)
+        {
+            if (dag == null)
+            {
+                _logger.LogWarning("Scenario graph is null. Nothing to execute.");
+                return;
+            }
+
+            _logger.LogInformation("Executing scenario via API call.");
             
-        await _pluginRunner.RunDataFlow(dag, cancellationToken);
+            await _pluginRunner.RunDataFlow(scenarioId,dag, cancellationToken);
+        }
     }
-}
 }

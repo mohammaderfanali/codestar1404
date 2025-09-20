@@ -1,0 +1,35 @@
+﻿{
+  "nodes": [
+    { "id": 1, "type": "CsvReaderPlugin", "data":
+    {
+      "filepath": "C:\\Users\\soroo\\Downloads\\Compressed\\people-500000\\people.csv"
+    }
+    },
+    { "id": 2, "type": "CsvReaderPlugin", "data":
+    {
+      "filepath": "C:\\Users\\soroo\\Downloads\\Compressed\\people-500000\\customers.csv"
+    }
+    },
+    { "id": 3, "type": "JoinPlugin", "data":
+    {
+      "type":"inner",
+      "onfirst": "User Id",
+      "onsecond": "Customer Id"
+    }
+    },
+    
+    {
+      "id": 4,
+      "type": "OutputPlugin",
+      "data": {
+        "tableName": "final-people/costumer"
+      }
+    }
+
+  ],
+  "edges": [
+    { "from": 1, "to": 3 },
+    { "from": 2, "to": 3 },
+    { "from": 3, "to": 4 }
+  ]
+}
